@@ -225,7 +225,7 @@ This is an open-source project. You are free to use, modify, and distribute this
 ## 🏷️ Project Status
 
 - **Status**: ✅ Production Ready
-- **Version**: v1.0.0
+- **Version**: v1.0.0 - Test Release
 - **Docker Hub**: [qutora/qutora-api](https://hub.docker.com/r/qutora/qutora-api)
 - **License**: MIT
 - **Maintenance**: Actively maintained
