@@ -1,42 +1,92 @@
-# Qutora API
+# Qutora Document Management System
 
-A modern, secure, and scalable document management API built with .NET 9 and Clean Architecture principles.
+![Docker Pulls](https://img.shields.io/docker/pulls/qutora/qutora-api)
+![Docker Image Size](https://img.shields.io/docker/image-size/qutora/qutora-api)
+![License](https://img.shields.io/github/license/qutora/qutora-api)
+![Build Status](https://img.shields.io/github/actions/workflow/status/qutora/qutora-api/docker-publish.yml)
 
-## 🚀 What is Qutora API?
+**Qutora** is a comprehensive, enterprise-grade document management system built with .NET 9 and Clean Architecture principles. It provides a robust REST API that can be integrated into any application requiring document management capabilities.
 
-Qutora API is a comprehensive document management system designed for enterprise-level applications. It provides a robust REST API that can be integrated into any application or system requiring document management capabilities.
+## 🚀 What is Qutora?
 
-**What Qutora API is:**
-- A complete backend API for document management
-- A secure, enterprise-ready solution
-- A highly extensible and modular system
-- A multi-tenant capable platform
+Qutora is designed for organizations that need secure, scalable document management:
 
-**What Qutora API is not:**
-- A ready-to-use web application (UI not included)
-- A simple file storage solution
-- A basic CRUD API without business logic
+- **Enterprise Document Management**: Secure storage and management of business documents
+- **Integration Projects**: Adding document capabilities to existing applications  
+- **Multi-Tenant Solutions**: SaaS applications requiring document management per tenant
+- **Compliance Requirements**: Systems needing audit trails and approval workflows
+- **API-First Approach**: Teams building custom frontends or mobile applications
 
 ## ✨ Key Features
 
-- **Multi-Database Support**: SQL Server, PostgreSQL, MySQL
-- **Multiple Storage Providers**: File System, MinIO, FTP, SFTP
-- **Advanced Authentication**: JWT tokens and API key authentication
-- **Document Management**: Upload, versioning, metadata, and categorization
-- **Secure Document Sharing**: Time-limited, password-protected sharing
-- **Approval Workflows**: Configurable approval processes
-- **Audit Logging**: Comprehensive activity tracking
-- **Role-Based Access Control**: Fine-grained permissions system
-- **RESTful API**: Clean, well-documented endpoints
+- **🗄️ Multi-Database Support**: SQL Server, PostgreSQL, MySQL
+- **📦 Multiple Storage Providers**: File System, MinIO, FTP, SFTP
+- **🔐 Advanced Authentication**: JWT tokens and API key authentication
+- **📋 Document Management**: Upload, versioning, metadata, and categorization
+- **🔗 Secure Document Sharing**: Time-limited, password-protected sharing
+- **✅ Approval Workflows**: Configurable approval processes
+- **📊 Audit Logging**: Comprehensive activity tracking
+- **👥 Role-Based Access Control**: Fine-grained permissions system
+- **🌐 RESTful API**: Clean, well-documented endpoints
 
 ## 🏗️ Architecture
 
 Built with Clean Architecture principles:
 
-- **Domain Layer**: Core business entities and rules
-- **Application Layer**: Use cases and interfaces
-- **Infrastructure Layer**: Data access, external services
-- **API Layer**: REST endpoints and controllers
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Presentation    │────│ Application     │────│ Infrastructure  │
+│ Layer           │    │ Layer           │    │ Layer           │
+│ (API/UI)        │    │ (Services)      │    │ (Data/Storage)  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                │
+                       ┌─────────────────┐
+                       │ Domain Layer    │
+                       │ (Entities/Rules)│
+                       └─────────────────┘
+```
+
+### 📁 Project Structure
+
+This repository contains the **API backend** and **shared components** of the Qutora ecosystem. The complete Qutora platform consists of multiple applications:
+
+```
+📦 Qutora Ecosystem
+├── 🌐 This Repository
+│   ├── Qutora.API                          # REST API backend
+│   ├── Qutora.Application                  # Business services & interfaces
+│   ├── Qutora.Domain                       # Entities & business logic
+│   ├── Qutora.Infrastructure               # Data access & technical services
+│   ├── Qutora.Shared                       # DTOs, models & common utilities
+│   └── Qutora.Database.*                   # Multi-database providers
+├── 🖥️  Qutora.UI (Private)                 # Admin web interface  
+└── 👁️  Qutora.PublicViewer (Private)       # Document viewer app
+```
+
+**Why this structure?**
+- **🔗 Qutora.Shared**: Essential shared components (DTOs, enums, models) that all applications depend on
+- **🎯 Clean Architecture**: Domain-driven design with clear separation of concerns
+- **🔧 Service Distribution**: Business services in Application layer, technical services in Infrastructure layer
+- **📈 Scalability**: Core API can be deployed independently while sharing contracts via Qutora.Shared
+
+**Building Your Own Frontend:**
+Since `Qutora.UI` and `Qutora.PublicViewer` are not publicly available, you can:
+- Build your own admin interface using the REST API
+- Create custom document viewers for your specific needs  
+- Reference `Qutora.Shared` DTOs and models for API contracts
+- Use the comprehensive API documentation
+- Leverage existing authentication and authorization patterns
+
+**🎯 PublicViewer Development Guide:**
+If you're building a document viewer application, consider implementing these proven features:
+- **Multi-format Support**: PDF (PDF.js), Images, Text files, Office documents
+- **Security Features**: Right-click protection, text selection blocking, watermarks
+- **Share Controls**: Password protection, view limits, expiration dates, download permissions
+- **User Experience**: Loading states, error handling, mobile responsiveness
+- **Advanced Features**: Print control, developer tools blocking, usage analytics
+
+The API provides all necessary endpoints for secure document sharing and access control.
 
 ## 🛠️ Tech Stack
 
@@ -45,112 +95,141 @@ Built with Clean Architecture principles:
 - **ASP.NET Core**: Web API framework
 - **JWT Authentication**: Secure token-based auth
 - **Serilog**: Structured logging
-- **Mapster**: High-performance object mapping
-- **System.Text.Json**: Built-in JSON serialization
+- **Docker**: Containerization support
 
+## 🐳 Quick Start with Docker
 
-## 🎯 Target Use Cases
+### Option 1: Docker Run
+```bash
+# Download environment template
+curl -o .env https://raw.githubusercontent.com/qutora/qutora-api/main/env.example
 
-Qutora API is designed for organizations that need:
+# Edit .env with your settings
+nano .env
 
-- **Enterprise Document Management**: Secure storage and management of business documents
-- **Integration Projects**: Adding document capabilities to existing applications
-- **Multi-Tenant Solutions**: SaaS applications requiring document management per tenant
-- **Compliance Requirements**: Systems needing audit trails and approval workflows
-- **Hybrid Storage Needs**: Organizations using multiple storage backends
-- **API-First Approach**: Teams building custom frontends or mobile applications
+# Start with Docker
+docker run -d \
+  --name qutora-api \
+  --env-file .env \
+  -p 8080:8080 \
+  qutora/qutora-api:latest
+```
 
-## 🏢 Enterprise Ready
+### Option 2: Docker Compose
+```bash
+# Clone repository
+git clone https://github.com/qutora/qutora-api.git
+cd qutora-api
 
-- **Scalable Architecture**: Handles high-volume document operations
-- **Security First**: Built-in authentication, authorization, and audit logging
-- **Multi-Database Support**: Choose the database that fits your infrastructure
-- **Extensible Design**: Add custom features without modifying core system
-- **Production Tested**: Battle-tested in enterprise environments
+# Start with SQL Server
+docker-compose -f docker-compose.yml -f docker-compose.sqlserver.yml up -d
+
+# Or with PostgreSQL
+docker-compose -f docker-compose.yml -f docker-compose.postgresql.yml up -d
+
+# Or with MySQL
+docker-compose -f docker-compose.yml -f docker-compose.mysql.yml up -d
+```
+
+## 📚 Documentation
+
+- **[Docker Documentation](DOCKER_README.md)** - Complete Docker setup guide
+- **[Security Guide](DOCKER_SECURITY_GUIDE.md)** - Security best practices
+- **[API Documentation](Documentation/API/)** - REST API reference
+- **[Architecture Guide](Documentation/Architecture/)** - System architecture
+
+## 🗄️ Database Support
+
+Switch between database providers by setting `Database__Provider`:
+
+| Database   | Provider Value | Connection String Example |
+|------------|----------------|---------------------------|
+| SQL Server | `SqlServer`    | `Server=localhost;Database=QutoraDB;Integrated Security=true;` |
+| PostgreSQL | `PostgreSQL`   | `Host=localhost;Database=qutora_db;Username=qutora_user;Password=pass;` |
+| MySQL      | `MySQL`        | `Server=localhost;Database=qutora_db;Uid=qutora_user;Pwd=pass;` |
+
+## 📦 Storage Providers
+
+Built-in storage providers with extensible architecture:
+
+- **File System**: Local file storage
+- **MinIO**: S3-compatible object storage  
+- **FTP/SFTP**: Remote file servers
+- **Extensible**: Easy to add custom providers
 
 ## 🛡️ Security Features
 
 - **JWT Token Authentication**: Secure user sessions
 - **API Key Authentication**: For external integrations
 - **Role-Based Authorization**: Granular permission control
-- **Rate Limiting**: Prevent API abuse
-- **CORS Protection**: Cross-origin request security
 - **Data Encryption**: Sensitive data protection
 - **Audit Trail**: Complete activity logging
+- **CORS Protection**: Cross-origin request security
 
-## 🗄️ Database Support
+## 🚀 Development
 
-Qutora API supports multiple database providers through Entity Framework Core:
+### Prerequisites
+- .NET 9 SDK
+- Docker (optional)
+- SQL Server/PostgreSQL/MySQL
 
-- **SQL Server** (Recommended for production)
-- **PostgreSQL** (Open-source alternative)
-- **MySQL** (Lightweight option)
+### Build & Run
+```bash
+# Clone repository
+git clone https://github.com/qutora/qutora-api.git
+cd qutora-api
 
-Switch between providers by changing the `Database.Provider` configuration.
+# Restore packages
+dotnet restore
 
-## 📦 Extensible Storage Architecture
+# Set connection string
+export ConnectionStrings__DefaultConnection="your-connection-string"
+export Database__Provider="SqlServer"
+export Jwt__Key="your-jwt-secret-key-32-chars-minimum"
 
-One of Qutora API's key strengths is its **highly extensible storage provider system**:
+# Run API
+dotnet run --project Qutora.API
+```
 
-### Built-in Providers
-- **File System**: Local file storage for development and small deployments
-- **MinIO**: S3-compatible object storage for scalable cloud deployments
-- **FTP/SFTP**: Remote file servers for legacy system integration
+### Docker Build
+```bash
+# Build image
+./docker-build.sh v1.0.0
 
-### Extensibility at Core
-- **Plugin Architecture**: Easy to add new storage providers without modifying core code
-- **Provider Interface**: Well-defined contracts for implementing custom storage solutions
-- **Dynamic Configuration**: Storage providers can be configured and switched at runtime
-- **Multi-Provider Support**: Use different storage providers for different document types or tenants
+# Build and push to Docker Hub
+./docker-build.sh v1.0.0 true
+```
 
-### Potential Extensions
-The architecture supports integration with:
-- Cloud storage services (Azure Blob, AWS S3, Google Cloud Storage)
-- Enterprise storage systems (SharePoint, OneDrive, Box)
-- Custom storage solutions specific to your organization
-- Hybrid storage configurations
+## 🤝 Contributing
 
-## 📊 Key Technical Features
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-- **Clean Architecture**: Separation of concerns with clear layer boundaries
-- **UnitOfWork Pattern**: Consistent transaction management
-- **Value Comparers**: Proper EF Core collection handling
-- **Current User Service**: Seamless user context tracking
-- **Reference Handling**: Advanced JSON serialization with circular reference support
-- **Optimistic Concurrency**: Built-in conflict resolution
-
-## 🚀 Getting Started
-
-**Important Note**: This repository contains only the API layer. 
-
-### For Developers
-- Comprehensive API documentation will be available
-- Integration examples and SDKs coming soon
-- Developer community and support channels
-
-### For Organizations
-- Professional support and consulting available
-- Custom development and integration services
-- Enterprise licensing and deployment assistance
-
-## 🤝 Community & Support
-
-- **Issues**: Report bugs and request features via GitHub Issues
-- **Discussions**: Join community discussions for best practices and use cases
-- **Documentation**: Comprehensive guides and API references (coming soon)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable  
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the Qutora Software License v1.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
 
-**Note**: This license permits internal, non-commercial use only. For commercial licensing, please contact us at info@qutora.io
+This is an open-source project. You are free to use, modify, and distribute this software under the terms of the MIT License.
 
-## 📞 Support
+## 🆘 Support
 
-For questions, issues, or commercial licensing:
-- Email: info@qutora.io
-- Issues: GitHub Issues tab
+- **Issues**: [Report bugs or request features](https://github.com/qutora/qutora-api/issues)
+- **Discussions**: [Community support](https://github.com/qutora/qutora-api/discussions)
+- **Documentation**: [Full documentation](Documentation/)
+
+## 🏷️ Project Status
+
+- **Status**: ✅ Production Ready
+- **Version**: v1.0.0
+- **Docker Hub**: [qutora/qutora-api](https://hub.docker.com/r/qutora/qutora-api)
+- **License**: MIT
+- **Maintenance**: Actively maintained
 
 ---
 
-**Qutora API** - Secure, scalable document management for modern applications. 
+**Built with ❤️ using .NET 9, Entity Framework Core, and Docker** 
