@@ -1,0 +1,57 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5099",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__DefaultConnection": "Server=localhost;Database=Qutora;Integrated Security=true;TrustServerCertificate=True;MultipleActiveResultSets=false",
+        "Database__Provider": "SqlServer",
+        "Jwt__Key": "DEV_P4ssw0rd_D0_N0t_U53_1n_Pr0duct10n_Th15_15_F0r_D3v_0nly",
+        "Jwt__Issuer": "QutoraAPI",
+        "Jwt__Audience": "QutoraFrontend",
+        "Jwt__DurationInMinutes": "60",
+        "AllowedOrigins__0": "http://localhost:5160",
+        "AllowedOrigins__1": "https://localhost:7223",
+        "PublicViewerOrigins__0": "http://localhost:5000",
+        "PublicViewerOrigins__1": "https://localhost:7000",
+        "PublicViewer__ApiKey": "PV_D3v3l0pm3nt_K3y_2024_D0_N0t_U53_1n_Pr0duct10n",
+        "PublicViewer__BaseUrl": "http://localhost:5000",
+        "PublicViewer__AllowedIPs__0": "127.0.0.1",
+        "PublicViewer__AllowedIPs__1": "::1",
+        "PublicViewer__AllowLocalhost": "true",
+        "Storage__DefaultProvider__RootPath": "C:/Storage",
+        "Storage__DefaultBucket__Path": "default"
+      }
+    },
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7099;http://localhost:5099",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__DefaultConnection": "Server=localhost;Database=Qutora;Integrated Security=true;TrustServerCertificate=True;MultipleActiveResultSets=false",
+        "Database__Provider": "SqlServer",
+        "Jwt__Key": "DEV_P4ssw0rd_D0_N0t_U53_1n_Pr0duct10n_Th15_15_F0r_D3v_0nly",
+        "Jwt__Issuer": "QutoraAPI",
+        "Jwt__Audience": "QutoraFrontend",
+        "Jwt__DurationInMinutes": "60",
+        "AllowedOrigins__0": "https://localhost:7223",
+        "AllowedOrigins__1": "http://localhost:5160",
+        "PublicViewerOrigins__0": "https://localhost:7000",
+        "PublicViewerOrigins__1": "http://localhost:5000",
+        "PublicViewer__ApiKey": "PV_D3v3l0pm3nt_K3y_2024_D0_N0t_U53_1n_Pr0duct10n",
+        "PublicViewer__BaseUrl": "https://localhost:7000",
+        "PublicViewer__AllowedIPs__0": "127.0.0.1",
+        "PublicViewer__AllowedIPs__1": "::1",
+        "PublicViewer__AllowLocalhost": "true",
+        "Storage__DefaultProvider__RootPath": "C:/Storage",
+        "Storage__DefaultBucket__Path": "default"
+      }
+    }
+  }
+}
