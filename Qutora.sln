@@ -19,11 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qutora.Database.PostgreSQL"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qutora.Database.MySQL", "Qutora.Database.MySQL\Qutora.Database.MySQL.csproj", "{8EC047DD-4CC2-434F-9D04-95F079D37F57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qutora.UI", "Qutora.UI\Qutora.UI.csproj", "{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qutora.Shared", "Qutora.Shared\Qutora.Shared.csproj", "{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Qutora.PublicViewer", "Qutora.PublicViewer\Qutora.PublicViewer.csproj", "{0758924B-F145-4029-8BBF-78A738E9A4E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -131,18 +127,6 @@ Global
 		{8EC047DD-4CC2-434F-9D04-95F079D37F57}.Release|x64.Build.0 = Release|Any CPU
 		{8EC047DD-4CC2-434F-9D04-95F079D37F57}.Release|x86.ActiveCfg = Release|Any CPU
 		{8EC047DD-4CC2-434F-9D04-95F079D37F57}.Release|x86.Build.0 = Release|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Debug|x64.Build.0 = Debug|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Debug|x86.Build.0 = Debug|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Release|x64.ActiveCfg = Release|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Release|x64.Build.0 = Release|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Release|x86.ActiveCfg = Release|Any CPU
-		{C1A7F644-2E9E-4E09-92DC-35D3FCF4FBBD}.Release|x86.Build.0 = Release|Any CPU
 		{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -155,18 +139,6 @@ Global
 		{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}.Release|x64.Build.0 = Release|Any CPU
 		{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}.Release|x86.ActiveCfg = Release|Any CPU
 		{7AA6D508-4EFB-4F8A-920D-5E5DE68867A4}.Release|x86.Build.0 = Release|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Debug|x64.Build.0 = Debug|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Debug|x86.Build.0 = Debug|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Release|x64.ActiveCfg = Release|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Release|x64.Build.0 = Release|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Release|x86.ActiveCfg = Release|Any CPU
-		{0758924B-F145-4029-8BBF-78A738E9A4E7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
