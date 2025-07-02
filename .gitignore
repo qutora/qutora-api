@@ -366,8 +366,10 @@ FodyWeavers.xsd
 
 # Docker
 .dockerignore
-Dockerfile*
-docker-compose*
+# Dockerfile* - COMMENTED OUT: We need Dockerfile in repository
+# Dockerfile*
+# docker-compose* - COMMENTED OUT: We need docker-compose files in repository
+# docker-compose*
 *.env
 
 # Environment variables
