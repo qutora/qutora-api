@@ -4,30 +4,30 @@ using Qutora.Shared.DTOs;
 namespace Qutora.Application.Interfaces;
 
 /// <summary>
-/// Denetim kaydı (audit log) için servis arayüzü.
+/// Service interface for audit logging operations.
 /// </summary>
 public interface IAuditService
 {
     /// <summary>
-    /// Audit log kaydı ekler
+    /// Adds an audit log entry
     /// </summary>
     Task LogAsync(AuditLog auditLog, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// API isteği denetim kaydı ekler.
+    /// Adds an API request audit log entry.
     /// </summary>
-    /// <param name="auditLog">Denetim kaydı</param>
+    /// <param name="auditLog">Audit log entry</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogApiRequestAsync(AuditLog auditLog, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Genel aktivite kaydı ekler
+    /// Adds a general activity log entry
     /// </summary>
-    /// <param name="entityType">İşlem yapılan varlık tipi</param>
-    /// <param name="entityId">İşlem yapılan varlık ID'si</param>
-    /// <param name="action">İşlem tipi</param>
-    /// <param name="details">İşlem detayları</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="entityType">Type of entity being operated on</param>
+    /// <param name="entityId">ID of entity being operated on</param>
+    /// <param name="action">Type of operation</param>
+    /// <param name="details">Operation details</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogActivityAsync(
         string entityType,
@@ -38,13 +38,13 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Doküman versiyonu oluşturma denetim kaydı ekler.
+    /// Adds an audit log entry for document version creation.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="documentId">Doküman kimliği</param>
-    /// <param name="versionId">Oluşturulan versiyon kimliği</param>
-    /// <param name="versionNumber">Versiyon numarası</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="versionId">Created version ID</param>
+    /// <param name="versionNumber">Version number</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogDocumentVersionCreatedAsync(
         string userId,
@@ -55,13 +55,13 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Doküman versiyonu geri yükleme denetim kaydı ekler.
+    /// Adds an audit log entry for document version rollback.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="documentId">Doküman kimliği</param>
-    /// <param name="versionId">Geri yüklenen versiyon kimliği</param>
-    /// <param name="versionNumber">Versiyon numarası</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="versionId">Rolled back version ID</param>
+    /// <param name="versionNumber">Version number</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogDocumentVersionRolledBackAsync(
         string userId,
@@ -72,12 +72,12 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Doküman oluşturma denetim kaydı ekler.
+    /// Adds an audit log entry for document creation.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="documentId">Doküman kimliği</param>
-    /// <param name="documentName">Doküman adı</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="documentName">Document name</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogDocumentCreatedAsync(
         string userId,
@@ -87,13 +87,13 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Doküman güncelleme denetim kaydı ekler.
+    /// Adds an audit log entry for document update.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="documentId">Doküman kimliği</param>
-    /// <param name="documentName">Doküman adı</param>
-    /// <param name="changes">Yapılan değişiklikler</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="documentName">Document name</param>
+    /// <param name="changes">Changes made</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogDocumentUpdatedAsync(
         string userId,
@@ -104,12 +104,12 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Doküman silme denetim kaydı ekler.
+    /// Adds an audit log entry for document deletion.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="documentId">Doküman kimliği</param>
-    /// <param name="documentName">Doküman adı</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="documentName">Document name</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogDocumentDeletedAsync(
         string userId,
@@ -119,12 +119,12 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Kullanıcı işlemleri denetim kaydı ekler.
+    /// Adds an audit log entry for user operations.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="targetUserId">Hedef kullanıcı kimliği</param>
-    /// <param name="action">İşlem tipi (create, update, delete, etc.)</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="targetUserId">Target user ID</param>
+    /// <param name="action">Type of operation (create, update, delete, etc.)</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogUserActionAsync(
         string userId,
@@ -134,13 +134,13 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sistem ayarları değişiklik denetim kaydı ekler.
+    /// Adds an audit log entry for system settings changes.
     /// </summary>
-    /// <param name="userId">İşlemi yapan kullanıcı kimliği</param>
-    /// <param name="settingName">Ayarlar adı</param>
-    /// <param name="oldValue">Eski değer</param>
-    /// <param name="newValue">Yeni değer</param>
-    /// <param name="additionalData">Ek bilgiler (opsiyonel)</param>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="settingName">Setting name</param>
+    /// <param name="oldValue">Old value</param>
+    /// <param name="newValue">New value</param>
+    /// <param name="additionalData">Additional information (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     Task LogSettingsChangedAsync(
         string userId,
@@ -151,21 +151,21 @@ public interface IAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Belirli bir kullanıcının audit loglarını getirir
+    /// Gets audit logs for a specific user
     /// </summary>
     Task<IEnumerable<AuditLogDto>> GetByUserIdAsync(string userId, int page = 1, int pageSize = 10,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// API Key aktivitelerini getirir
+    /// Gets API Key activities
     /// </summary>
-    /// <param name="apiKeyId">API Key ID'si</param>
-    /// <param name="startDate">Başlangıç tarihi (opsiyonel)</param>
-    /// <param name="endDate">Bitiş tarihi (opsiyonel)</param>
-    /// <param name="page">Sayfa numarası</param>
-    /// <param name="pageSize">Sayfa boyutu</param>
+    /// <param name="apiKeyId">API Key ID</param>
+    /// <param name="startDate">Start date (optional)</param>
+    /// <param name="endDate">End date (optional)</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API Key aktivite logları ve toplam sayı</returns>
+    /// <returns>API Key activity logs and total count</returns>
     Task<(IEnumerable<AuditLogDto> Activities, int TotalCount)> GetApiKeyActivitiesAsync(
         string apiKeyId,
         DateTime? startDate = null,

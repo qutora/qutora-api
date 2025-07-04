@@ -4,14 +4,14 @@ using System.Collections.Concurrent;
 namespace Qutora.Database.Abstractions;
 
 /// <summary>
-/// Veritabanı sağlayıcılarını yönetmek için registry implementasyonu
+/// Registry implementation for managing database providers
 /// </summary>
 public class DbProviderRegistry(ILogger<DbProviderRegistry>? logger = null) : IDbProviderRegistry
 {
     private readonly ConcurrentDictionary<string, IDbProvider> _providers = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Bir veritabanı sağlayıcısını kaydeder
+    /// Registers a database provider
     /// </summary>
     public void RegisterProvider(IDbProvider provider)
     {
@@ -26,7 +26,7 @@ public class DbProviderRegistry(ILogger<DbProviderRegistry>? logger = null) : ID
     }
 
     /// <summary>
-    /// İsim ile sağlayıcı alır
+    /// Gets provider by name
     /// </summary>
     public IDbProvider? GetProvider(string providerName)
     {
@@ -41,7 +41,7 @@ public class DbProviderRegistry(ILogger<DbProviderRegistry>? logger = null) : ID
     }
 
     /// <summary>
-    /// Kayıtlı tüm sağlayıcı adlarını döndürür
+    /// Returns all registered provider names
     /// </summary>
     public IEnumerable<string> GetAvailableProviders()
     {
@@ -49,7 +49,7 @@ public class DbProviderRegistry(ILogger<DbProviderRegistry>? logger = null) : ID
     }
 
     /// <summary>
-    /// EF Core provider adından sağlayıcı adını çıkarır
+    /// Extracts provider name from EF Core provider name
     /// </summary>
     public string ExtractProviderName(string? providerName)
     {

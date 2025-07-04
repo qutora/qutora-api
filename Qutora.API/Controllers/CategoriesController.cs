@@ -33,7 +33,7 @@ public class CategoriesController(
             // For now, let's get all categories and do client-side pagination
             var categoryDtos = await _categoryService.GetAllAsync();
             
-            // Arama filtresi
+            // Search filter
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 categoryDtos = categoryDtos.Where(c => 
@@ -42,7 +42,7 @@ public class CategoriesController(
                 );
             }
             
-            // Sayfalama
+            // Pagination
             var totalCount = categoryDtos.Count();
             var pagedCategories = categoryDtos
                 .Skip((page - 1) * pageSize)

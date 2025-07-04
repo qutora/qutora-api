@@ -3,51 +3,51 @@ using Qutora.Shared.DTOs;
 namespace Qutora.Application.Interfaces;
 
 /// <summary>
-/// Doküman metadata işlemleri için servis arayüzü
+/// Service interface for document metadata operations
 /// </summary>
 public interface IMetadataService
 {
     /// <summary>
-    /// Bir dokümanın metadata bilgilerini getirir
+    /// Gets metadata information for a document
     /// </summary>
     Task<MetadataDto?> GetByDocumentIdAsync(Guid documentId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Bir dokümanın metadata bilgilerini getirir
+    /// Gets metadata information for a document
     /// </summary>
     Task<MetadataDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Yeni bir metadata oluşturur
+    /// Creates new metadata
     /// </summary>
     Task<MetadataDto> CreateAsync(Guid documentId, CreateUpdateMetadataDto createMetadataDto,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Var olan bir metadata'yı günceller
+    /// Updates existing metadata
     /// </summary>
     Task<MetadataDto> UpdateAsync(Guid documentId, CreateUpdateMetadataDto updateMetadataDto,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Bir metadata'yı siler
+    /// Deletes metadata
     /// </summary>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Belirli etiketlere sahip dokümanların metadata bilgilerini sayfalı olarak getirir
+    /// Gets document metadata with specific tags in paginated format
     /// </summary>
     Task<PagedDto<MetadataDto>> GetByTagsAsync(string[] tags, int page = 1, int pageSize = 10,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Metadata değerlerine göre dokümanları sayfalı olarak arar
+    /// Searches documents by metadata values in paginated format
     /// </summary>
     Task<PagedDto<MetadataDto>> SearchAsync(Dictionary<string, object> searchCriteria, int page = 1,
         int pageSize = 10, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Metadata validasyonu yapar
+    /// Validates metadata
     /// </summary>
     Task<Dictionary<string, string>> ValidateMetadataAsync(string schemaName,
         Dictionary<string, object> metadata, CancellationToken cancellationToken = default);

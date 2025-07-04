@@ -1,22 +1,22 @@
 namespace Qutora.Application.Models.Validation;
 
 /// <summary>
-/// Metadata doğrulama hatası
+/// Metadata validation error
 /// </summary>
 public class ValidationError
 {
     /// <summary>
-    /// Hata olan alan
+    /// Field with error
     /// </summary>
     public string Field { get; set; }
 
     /// <summary>
-    /// Hata mesajı
+    /// Error message
     /// </summary>
     public string Message { get; set; }
 
     /// <summary>
-    /// Yeni doğrulama hatası oluşturur
+    /// Creates a new validation error
     /// </summary>
     public ValidationError(string field, string message)
     {

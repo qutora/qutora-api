@@ -94,7 +94,7 @@ public class EmailController(IEmailService emailService, ILogger<EmailController
             if (success)
                 return Ok(MessageResponseDto.SuccessResponse("Test template email sent successfully"));
             else
-                return BadRequest(MessageResponseDto.ErrorResponse("Test email gönderilemedi. Lütfen ayarlarınızı kontrol edin."));
+                return BadRequest(MessageResponseDto.ErrorResponse("Failed to send test template email. Please check your settings."));
         }
         catch (Exception ex)
         {

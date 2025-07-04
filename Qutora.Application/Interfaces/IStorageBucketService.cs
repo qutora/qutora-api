@@ -4,70 +4,70 @@ using Qutora.Shared.DTOs;
 namespace Qutora.Application.Interfaces;
 
 /// <summary>
-/// Bucket/klasör işlemlerini yöneten servis arayüzü
+/// Service interface for managing bucket/folder operations
 /// </summary>
 public interface IStorageBucketService
 {
     /// <summary>
-    /// Belirli bir depolama sağlayıcısındaki bucket/klasörleri listeler
+    /// Lists buckets/folders in a specific storage provider
     /// </summary>
-    /// <param name="providerId">Depolama sağlayıcısı ID'si</param>
-    /// <returns>Bucket bilgileri listesi</returns>
+    /// <param name="providerId">Storage provider ID</param>
+    /// <returns>List of bucket information</returns>
     Task<IEnumerable<BucketInfoDto>> ListProviderBucketsAsync(string providerId);
 
     /// <summary>
-    /// Kullanıcının belirli bir provider'daki erişim yetkisi olan bucket'ları getirir
+    /// Gets buckets that a user has access to in a specific provider
     /// </summary>
-    /// <param name="userId">Kullanıcı ID'si</param>
-    /// <param name="providerId">Depolama sağlayıcısı ID'si</param>
-    /// <returns>Kullanıcının yetkili olduğu bucket bilgileri listesi</returns>
+    /// <param name="userId">User ID</param>
+    /// <param name="providerId">Storage provider ID</param>
+    /// <returns>List of bucket information that user has access to</returns>
     Task<IEnumerable<BucketInfoDto>> GetUserAccessibleBucketsForProviderAsync(string userId, string providerId);
 
     /// <summary>
-    /// Belirli bir provider'ın default bucket'ını getirir
+    /// Gets the default bucket for a specific provider
     /// </summary>
-    /// <param name="providerId">Depolama sağlayıcısı ID'si</param>
-    /// <returns>Default bucket bilgisi veya null</returns>
+    /// <param name="providerId">Storage provider ID</param>
+    /// <returns>Default bucket information or null</returns>
     Task<BucketInfoDto?> GetDefaultBucketForProviderAsync(string providerId);
 
     /// <summary>
-    /// Bir bucket/klasörün var olup olmadığını kontrol eder
+    /// Checks if a bucket/folder exists
     /// </summary>
-    /// <param name="providerId">Depolama sağlayıcısı ID'si</param>
-    /// <param name="bucketPath">Bucket/klasör path'i</param>
-    /// <returns>Bucket/klasör varsa true, yoksa false</returns>
+    /// <param name="providerId">Storage provider ID</param>
+    /// <param name="bucketPath">Bucket/folder path</param>
+    /// <returns>True if bucket/folder exists, false otherwise</returns>
     Task<bool> BucketExistsAsync(string providerId, string bucketPath);
 
     /// <summary>
-    /// Belirli bir bucket ID'si için bucket bilgilerini alır
+    /// Gets bucket information for a specific bucket ID
     /// </summary>
-    /// <param name="bucketId">Bucket ID'si</param>
-    /// <returns>Bucket entity'si</returns>
+    /// <param name="bucketId">Bucket ID</param>
+    /// <returns>Bucket entity</returns>
     Task<StorageBucket> GetBucketByIdAsync(Guid bucketId);
 
     /// <summary>
-    /// Bir bucket/klasörü siler
+    /// Deletes a bucket/folder
     /// </summary>
-    /// <param name="providerId">Depolama sağlayıcısı ID'si</param>
-    /// <param name="bucketPath">Bucket/klasör path'i</param>
-    /// <param name="force">İçerik dolu olsa bile silme işlemi yapılsın mı</param>
-    /// <returns>İşlem başarılıysa true, değilse false</returns>
+    /// <param name="providerId">Storage provider ID</param>
+    /// <param name="bucketPath">Bucket/folder path</param>
+    /// <param name="force">Force delete even if bucket has content</param>
+    /// <returns>True if operation succeeds, false otherwise</returns>
     Task<bool> RemoveBucketAsync(string providerId, string bucketPath, bool force = false);
 
     /// <summary>
-    /// Bucket izinlerini getirir
+    /// Gets bucket permissions
     /// </summary>
-    /// <param name="bucketId">Bucket ID'si</param>
-    /// <returns>Bucket izinleri listesi</returns>
+    /// <param name="bucketId">Bucket ID</param>
+    /// <returns>List of bucket permissions</returns>
     Task<IEnumerable<BucketPermissionDto>> GetBucketPermissionsAsync(Guid bucketId);
 
     /// <summary>
-    /// Kullanıcının bucket izinlerini sayfalanmış olarak getirir
+    /// Gets user's bucket permissions in paginated format
     /// </summary>
-    /// <param name="userId">Kullanıcı ID'si</param>
-    /// <param name="page">Sayfa numarası</param>
-    /// <param name="pageSize">Sayfa başına kayıt sayısı</param>
-    /// <returns>Sayfalanmış bucket izinleri sonuç nesnesi</returns>
+    /// <param name="userId">User ID</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Number of records per page</param>
+    /// <returns>Paginated bucket permissions result object</returns>
     Task<PagedDto<BucketPermissionDto>> GetUserBucketPermissionsPaginatedAsync(string userId, int page, int pageSize);
 
     /// <summary>
@@ -76,56 +76,56 @@ public interface IStorageBucketService
     Task<PagedDto<BucketPermissionDto>> GetAllBucketPermissionsPaginatedAsync(int page, int pageSize);
 
     /// <summary>
-    /// Sayfalandırılmış bucket listesini getirir
+    /// Gets paginated bucket list
     /// </summary>
-    /// <param name="page">Sayfa numarası</param>
-    /// <param name="pageSize">Sayfa başına kayıt sayısı</param>
-    /// <returns>Sayfalandırılmış bucket listesi</returns>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Number of records per page</param>
+    /// <returns>Paginated bucket list</returns>
     Task<IEnumerable<StorageBucket>> GetPaginatedBucketsAsync(int page, int pageSize);
 
     /// <summary>
-    /// Kullanıcının erişim yetkisi olan bucketları sayfalandırılmış şekilde getirir
+    /// Gets user's accessible buckets in paginated format
     /// </summary>
-    /// <param name="userId">Kullanıcı ID'si</param>
-    /// <param name="page">Sayfa numarası</param>
-    /// <param name="pageSize">Sayfa başına kayıt sayısı</param>
-    /// <returns>Sayfalandırılmış bucket listesi</returns>
+    /// <param name="userId">User ID</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Number of records per page</param>
+    /// <returns>Paginated bucket list</returns>
     Task<PagedDto<BucketInfoDto>> GetUserAccessiblePaginatedBucketsAsync(string userId, int page, int pageSize);
 
     /// <summary>
-    /// Provider ID ve bucket path'ine göre bucket ID'sini alır
+    /// Gets bucket ID by provider ID and bucket path
     /// </summary>
-    /// <param name="providerId">Provider ID'si</param>
-    /// <param name="bucketPath">Bucket path'i</param>
-    /// <returns>Bucket ID'si veya null</returns>
+    /// <param name="providerId">Provider ID</param>
+    /// <param name="bucketPath">Bucket path</param>
+    /// <returns>Bucket ID or null</returns>
     Task<Guid?> GetBucketIdByProviderAndPathAsync(string providerId, string bucketPath);
 
     /// <summary>
-    /// Yeni bir bucket oluşturur (detaylı)
+    /// Creates a new bucket (detailed)
     /// </summary>
-    /// <param name="dto">Bucket oluşturma DTO'su</param>
-    /// <param name="userId">Oluşturan kullanıcı ID'si</param>
-    /// <returns>Oluşturulan bucket entity'si</returns>
+    /// <param name="dto">Bucket creation DTO</param>
+    /// <param name="userId">Creating user ID</param>
+    /// <returns>Created bucket entity</returns>
     Task<StorageBucket> CreateBucketAsync(BucketCreateDto dto, string userId);
 
     /// <summary>
-    /// Bucket ID'sine göre bucket path'ini getirir
+    /// Gets bucket path by bucket ID
     /// </summary>
-    /// <param name="bucketId">Bucket ID'si</param>
-    /// <returns>Bucket path'i veya null</returns>
+    /// <param name="bucketId">Bucket ID</param>
+    /// <returns>Bucket path or null</returns>
     Task<string?> GetBucketPathByIdAsync(Guid bucketId);
 
     /// <summary>
-    /// Bucket path'ine göre bucket ID'sini getirir
+    /// Gets bucket ID by bucket path
     /// </summary>
-    /// <param name="bucketPath">Bucket path'i</param>
-    /// <returns>Bucket ID'si veya null</returns>
+    /// <param name="bucketPath">Bucket path</param>
+    /// <returns>Bucket ID or null</returns>
     Task<Guid?> GetBucketIdByPathAsync(string bucketPath);
 
     /// <summary>
-    /// Bucket'ta doküman olup olmadığını kontrol eder
+    /// Checks if bucket has any documents
     /// </summary>
-    /// <param name="bucketId">Bucket ID'si</param>
-    /// <returns>Bucket'ta doküman varsa true, yoksa false</returns>
+    /// <param name="bucketId">Bucket ID</param>
+    /// <returns>True if bucket has documents, false otherwise</returns>
     Task<bool> HasDocumentsAsync(Guid bucketId);
 }
