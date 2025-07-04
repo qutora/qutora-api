@@ -5,17 +5,17 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Qutora.Database.Abstractions;
 
 /// <summary>
-/// DbContext yapılandırma extension metodları
+/// DbContext configuration extension methods
 /// </summary>
 public static class DbContextBuilderExtensions
 {
     /// <summary>
-    /// Qutora için DbContext ekler ve yapılandırır
+    /// Adds and configures DbContext for Qutora
     /// </summary>
-    /// <typeparam name="TContext">DbContext tipi</typeparam>
+    /// <typeparam name="TContext">DbContext type</typeparam>
     /// <param name="services">Service collection</param>
-    /// <param name="configuration">Konfigürasyon</param>
-    /// <param name="dbProviderConfigKey">Sağlayıcı konfigürasyon anahtarı</param>
+    /// <param name="configuration">Configuration</param>
+    /// <param name="dbProviderConfigKey">Provider configuration key</param>
     /// <returns>Service collection</returns>
     public static IServiceCollection AddQutoraDbContext<TContext>(
         this IServiceCollection services,

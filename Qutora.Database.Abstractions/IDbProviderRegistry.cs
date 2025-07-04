@@ -1,33 +1,33 @@
 namespace Qutora.Database.Abstractions;
 
 /// <summary>
-/// Veritabanı sağlayıcılarını yönetmek için registry
+/// Registry for managing database providers
 /// </summary>
 public interface IDbProviderRegistry
 {
     /// <summary>
-    /// Bir veritabanı sağlayıcısını kaydeder
+    /// Registers a database provider
     /// </summary>
-    /// <param name="provider">Sağlayıcı</param>
+    /// <param name="provider">Provider</param>
     void RegisterProvider(IDbProvider provider);
 
     /// <summary>
-    /// İsim ile sağlayıcı alır
+    /// Gets provider by name
     /// </summary>
-    /// <param name="providerName">Sağlayıcı adı</param>
-    /// <returns>Sağlayıcı implementasyonu veya null</returns>
+    /// <param name="providerName">Provider name</param>
+    /// <returns>Provider implementation or null</returns>
     IDbProvider? GetProvider(string providerName);
 
     /// <summary>
-    /// Kayıtlı tüm sağlayıcı adlarını döndürür
+    /// Returns all registered provider names
     /// </summary>
-    /// <returns>Sağlayıcı adları</returns>
+    /// <returns>Provider names</returns>
     IEnumerable<string> GetAvailableProviders();
 
     /// <summary>
-    /// DbContext sağlayıcı adını çıkarır
+    /// Extracts DbContext provider name
     /// </summary>
-    /// <param name="providerName">EF Core Provider adı</param>
-    /// <returns>Sağlayıcı adı</returns>
+    /// <param name="providerName">EF Core Provider name</param>
+    /// <returns>Provider name</returns>
     string ExtractProviderName(string? providerName);
 }

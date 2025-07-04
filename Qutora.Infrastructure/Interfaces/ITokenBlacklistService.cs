@@ -1,29 +1,29 @@
 namespace Qutora.Infrastructure.Interfaces;
 
 /// <summary>
-/// İptal edilmiş token'ları yönetmek için servis arayüzü
+/// Service interface for managing blacklisted tokens
 /// </summary>
 public interface ITokenBlacklistService
 {
     /// <summary>
-    /// Bir token'ı blacklist'e ekler
+    /// Adds a token to the blacklist
     /// </summary>
-    /// <param name="jti">Token'ın benzersiz tanımlayıcısı (JWT ID)</param>
-    /// <param name="expiryTime">Token'ın geçerlilik süresi sonu</param>
+    /// <param name="jti">Token's unique identifier (JWT ID)</param>
+    /// <param name="expiryTime">Token's expiry time</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>İşlem başarısı</returns>
+    /// <returns>Operation success</returns>
     Task<bool> AddToBlacklistAsync(string jti, DateTime expiryTime, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Bir token'ın blacklist'te olup olmadığını kontrol eder
+    /// Checks if a token is blacklisted
     /// </summary>
-    /// <param name="jti">Token'ın benzersiz tanımlayıcısı (JWT ID)</param>
+    /// <param name="jti">Token's unique identifier (JWT ID)</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Token blacklist'te ise true, değilse false</returns>
+    /// <returns>True if token is blacklisted, otherwise false</returns>
     Task<bool> IsBlacklistedAsync(string jti, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Süresi dolmuş blacklist kayıtlarını temizler
+    /// Cleans up expired blacklist entries
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     Task CleanupExpiredTokensAsync(CancellationToken cancellationToken = default);

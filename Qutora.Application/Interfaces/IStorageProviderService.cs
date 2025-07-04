@@ -3,78 +3,78 @@ using Qutora.Shared.DTOs;
 namespace Qutora.Application.Interfaces;
 
 /// <summary>
-/// Depolama sağlayıcıları için servis arayüzü
+/// Service interface for storage providers
 /// </summary>
 public interface IStorageProviderService
 {
     /// <summary>
-    /// Tüm storage provider'ları getirir
+    /// Gets all storage providers
     /// </summary>
     Task<IEnumerable<StorageProviderDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sadece aktif storage provider'ları getirir
+    /// Gets only active storage providers
     /// </summary>
     Task<IEnumerable<StorageProviderDto>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Varsayılan storage provider'ı getirir
+    /// Gets the default storage provider
     /// </summary>
     Task<StorageProviderDto?> GetDefaultProviderAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Kullanıcının bucket yetkisi olan aktif storage provider'ları getirir
+    /// Gets active storage providers that the user has bucket permissions for
     /// </summary>
     Task<IEnumerable<StorageProviderDto>> GetUserAccessibleProvidersAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// ID'ye göre storage provider getirir
+    /// Gets storage provider by ID
     /// </summary>
     Task<StorageProviderDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Aktif tüm provider ID'lerini getirir
+    /// Gets all active provider IDs
     /// </summary>
     Task<IEnumerable<string>> GetAvailableProviderNamesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sistemde kullanılabilir tüm provider tiplerini getirir
+    /// Gets all provider types available in the system
     /// </summary>
     IEnumerable<string> GetAvailableProviderTypes();
 
     /// <summary>
-    /// Yeni storage provider ekler
+    /// Adds a new storage provider
     /// </summary>
     Task<StorageProviderDto> CreateAsync(StorageProviderCreateDto dto, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Storage provider günceller
+    /// Updates storage provider
     /// </summary>
     Task<bool> UpdateAsync(Guid id, StorageProviderUpdateDto dto, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Provider'ı aktif/pasif yapar
+    /// Makes provider active/inactive
     /// </summary>
     Task<bool> ToggleStatusAsync(Guid id, bool isActive, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Provider'ı varsayılan yapar
+    /// Makes provider default
     /// </summary>
     Task<bool> SetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Storage provider'ı siler
+    /// Deletes storage provider
     /// </summary>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Provider bağlantısını test eder
+    /// Tests provider connection
     /// </summary>
     Task<(bool success, string message)> TestConnectionAsync(StorageProviderTestDto dto,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Belirli bir provider tipi için konfigürasyon şemasını döndürür
+    /// Returns configuration schema for a specific provider type
     /// </summary>
     /// <param name="providerType">Provider type</param>
     /// <returns>Configuration schema</returns>

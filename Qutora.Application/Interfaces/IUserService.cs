@@ -5,132 +5,132 @@ using Qutora.Shared.DTOs.Authentication;
 namespace Qutora.Application.Interfaces;
 
 /// <summary>
-/// Kullanıcı yönetimi için servis arayüzü
+/// Service interface for user management
 /// </summary>
 public interface IUserService
 {
     /// <summary>
-    /// Tüm kullanıcıları listeler
+    /// Lists all users
     /// </summary>
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
 
     /// <summary>
-    /// Sayfalanmış kullanıcı listesi getirir
+    /// Gets paginated user list
     /// </summary>
     Task<PagedDto<UserDto>> GetPagedUsersAsync(int page = 1, int pageSize = 10, string? searchTerm = null);
 
     /// <summary>
-    /// ID'ye göre kullanıcı bilgilerini getirir
+    /// Gets user information by ID
     /// </summary>
     Task<UserDto?> GetUserByIdAsync(string userId);
 
     /// <summary>
-    /// E-posta adresine göre kullanıcı bilgilerini getirir
+    /// Gets user information by email address
     /// </summary>
     Task<UserDto?> GetUserByEmailAsync(string email);
 
     /// <summary>
-    /// Yeni bir kullanıcı oluşturur (sadece admin yetkisiyle)
+    /// Creates a new user (admin privilege only)
     /// </summary>
     Task<UserDto> CreateUserAsync(CreateUserRequest request);
 
     /// <summary>
-    /// Kullanıcı bilgilerini günceller
+    /// Updates user information
     /// </summary>
     Task<UserDto> UpdateUserAsync(string userId, UserDto user);
 
     /// <summary>
-    /// Kullanıcı şifresini değiştirir
+    /// Changes user password
     /// </summary>
     Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
 
     /// <summary>
-    /// Kullanıcı durumunu günceller (aktif/pasif)
+    /// Updates user status (active/inactive)
     /// </summary>
     Task<bool> UpdateUserStatusAsync(string userId, bool isActive);
 
     /// <summary>
-    /// Kullanıcı durumunu günceller (aktif/pasif) - güvenlik kontrolleri ile
+    /// Updates user status (active/inactive) with security checks
     /// </summary>
     Task<bool> UpdateUserStatusAsync(string userId, bool isActive, string? currentUserId);
 
     /// <summary>
-    /// Kullanıcıyı siler
+    /// Deletes user
     /// </summary>
     Task<bool> DeleteUserAsync(string userId);
 
     /// <summary>
-    /// Kullanıcıyı siler - güvenlik kontrolleri ile
+    /// Deletes user with security checks
     /// </summary>
     Task<bool> DeleteUserAsync(string userId, string? currentUserId);
 
     /// <summary>
-    /// Kullanıcıya rol atar
+    /// Assigns role to user
     /// </summary>
     Task<bool> AssignRoleToUserAsync(string userId, string roleName);
 
     /// <summary>
-    /// Kullanıcıdan rol kaldırır
+    /// Removes role from user
     /// </summary>
     Task<bool> RemoveRoleFromUserAsync(string userId, string roleName);
 
     /// <summary>
-    /// Kullanıcının tüm rollerini getirir
+    /// Gets all roles of the user
     /// </summary>
     Task<IEnumerable<string>> GetUserRolesAsync(string userId);
 
     /// <summary>
-    /// Sistemdeki tüm rolleri listeler
+    /// Lists all roles in the system
     /// </summary>
     Task<IEnumerable<string>> GetAllRolesAsync();
 
     /// <summary>
-    /// Sistemdeki tüm rolleri ID ve Name ile birlikte listeler
+    /// Lists all roles in the system with ID and Name
     /// </summary>
     Task<IEnumerable<(string Id, string Name)>> GetAllRolesWithIdsAsync();
 
     /// <summary>
-    /// Bir rolün sahip olduğu tüm claim'leri getirir
+    /// Gets all claims owned by a role
     /// </summary>
     Task<IEnumerable<Claim>> GetRoleClaimsAsync(string roleName);
 
     /// <summary>
-    /// Bir role claim ekler
+    /// Adds claim to a role
     /// </summary>
     Task<bool> AddClaimToRoleAsync(string roleName, string claimType, string claimValue);
 
     /// <summary>
-    /// Bir rolden claim kaldırır
+    /// Removes claim from a role
     /// </summary>
     Task<bool> RemoveClaimFromRoleAsync(string roleName, string claimType, string claimValue);
 
     /// <summary>
-    /// Sistemdeki tüm izinleri kategorilendirilmiş şekilde döndürür
+    /// Returns all permissions in the system in categorized format
     /// </summary>
     Task<IEnumerable<PermissionDto>> GetAllPermissionsAsync();
 
     /// <summary>
-    /// Bir rolün sahip olduğu izinleri döndürür
+    /// Returns permissions owned by a role
     /// </summary>
     Task<IEnumerable<string>> GetRolePermissionsAsync(string roleName);
 
     /// <summary>
-    /// Bir rol için izinleri günceller
+    /// Updates permissions for a role
     /// </summary>
     Task<bool> UpdateRolePermissionsAsync(string roleName, IEnumerable<string> permissions);
 
     /// <summary>
-    /// Rol oluşturur
+    /// Creates role
     /// </summary>
     Task<bool> CreateRoleAsync(string roleName, string roleDescription = "");
 
     /// <summary>
-    /// Rol siler
+    /// Deletes role
     /// </summary>
     Task<bool> DeleteRoleAsync(string roleName);
 
     /// <summary>
-    /// Belirtilen roldeki kullanıcıları getirir
+    /// Gets users in the specified role
     /// </summary>
     Task<IEnumerable<UserDto>> GetUsersInRoleAsync(string roleName);
 }
