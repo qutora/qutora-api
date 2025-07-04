@@ -2,7 +2,7 @@ name: Docker Build and Release
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main test-docker-publish ]
   pull_request:
     branches: [ main ]
     types: [ closed ]
