@@ -54,19 +54,19 @@ public class AdminController(IUserService userService, ILogger<AdminController> 
     {
         try
         {
-            // Model validation kontrolü
+            // Model validation check
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Ekstra rol validation - API seviyesinde güvenlik
+            // Extra role validation - API level security
             if (request.Roles == null || !request.Roles.Any())
             {
                 return BadRequest(MessageResponseDto.ErrorResponse("At least one role must be assigned to the user"));
             }
 
-            // Rol varlığı kontrolü
+            // Role existence check
             var availableRoles = await userService.GetAllRolesAsync();
             var invalidRoles = request.Roles.Except(availableRoles).ToList();
             if (invalidRoles.Any())
@@ -156,8 +156,8 @@ public class AdminController(IUserService userService, ILogger<AdminController> 
             var rolesWithIds = await userService.GetAllRolesWithIdsAsync();
             var roleDtos = rolesWithIds.Select(role => new RoleDto
             {
-                Id = role.Id,      // Gerçek role ID'si
-                Name = role.Name   // Role adı
+                Id = role.Id,      // Actual role ID
+                Name = role.Name   // Role name
             }).ToList();
 
             return Ok(roleDtos);

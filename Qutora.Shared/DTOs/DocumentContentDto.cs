@@ -1,27 +1,27 @@
 namespace Qutora.Shared.DTOs;
 
 /// <summary>
-/// Doküman içeriği ve meta verilerini taşıyan DTO
+/// DTO for transferring document content and metadata
 /// </summary>
 public class DocumentContentDto
 {
     /// <summary>
-    /// Doküman içeriği (dosya akışı)
+    /// Document content (file stream)
     /// </summary>
     public required byte[] Content { get; set; }
 
     /// <summary>
-    /// Dosya adı
+    /// File name
     /// </summary>
     public required string FileName { get; set; }
 
     /// <summary>
-    /// Dosya içerik türü (MIME type)
+    /// File content type (MIME type)
     /// </summary>
     public required string ContentType { get; set; }
 
     /// <summary>
-    /// Dosya boyutu (byte)
+    /// File size (bytes)
     /// </summary>
     public long FileSize { get; set; }
 }

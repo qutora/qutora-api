@@ -1,17 +1,17 @@
 namespace Qutora.Shared.DTOs.Authentication;
 
 /// <summary>
-/// Yetki talepleri (claim) için veri transfer nesnesi
+/// Data transfer object for claims
 /// </summary>
 public class ClaimDto
 {
     /// <summary>
-    /// Talep tipi
+    /// Claim type
     /// </summary>
     public string Type { get; set; } = string.Empty;
 
     /// <summary>
-    /// Talep değeri
+    /// Claim value
     /// </summary>
     public string Value { get; set; } = string.Empty;
 }
