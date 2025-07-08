@@ -173,4 +173,44 @@ public interface IAuditService
         int page = 1,
         int pageSize = 10,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Logs document download activity with comprehensive metadata
+    /// </summary>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="fileName">File name</param>
+    /// <param name="fileSize">File size in bytes</param>
+    /// <param name="downloadMethod">Download method (DirectDownload, etc.)</param>
+    /// <param name="additionalData">Additional information (optional)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task LogDocumentDownloadedAsync(
+        string userId,
+        Guid documentId,
+        string fileName,
+        long fileSize,
+        string downloadMethod = "DirectDownload",
+        Dictionary<string, string>? additionalData = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Logs document version download activity
+    /// </summary>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="versionId">Version ID</param>
+    /// <param name="versionNumber">Version number</param>
+    /// <param name="fileName">File name</param>
+    /// <param name="fileSize">File size in bytes</param>
+    /// <param name="additionalData">Additional information (optional)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task LogDocumentVersionDownloadedAsync(
+        string userId,
+        Guid documentId,
+        Guid versionId,
+        int versionNumber,
+        string fileName,
+        long fileSize,
+        Dictionary<string, string>? additionalData = null,
+        CancellationToken cancellationToken = default);
 }

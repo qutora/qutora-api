@@ -3,9 +3,9 @@ using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Interfaces;
 using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
+using Qutora.Shared.Helpers;
 
 namespace Qutora.Application.Services;
 
@@ -409,5 +409,119 @@ public class AuditService(
         var activitiesDto = mapper.Map<IEnumerable<AuditLogDto>>(pagedActivities);
 
         return (activitiesDto, totalCount);
+    }
+
+    /// <inheritdoc/>
+    public async Task LogDocumentDownloadedAsync(
+        string userId,
+        Guid documentId,
+        string fileName,
+        long fileSize,
+        string downloadMethod = "DirectDownload",
+        Dictionary<string, string>? additionalData = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var auditLog = new AuditLog
+            {
+                UserId = userId,
+                Timestamp = DateTime.UtcNow,
+                EventType = "DocumentDownloaded",
+                EntityType = "Document",
+                EntityId = documentId.ToString(),
+                Description = $"Document '{fileName}' downloaded via {downloadMethod}",
+                Data = JsonSerializer.Serialize(new
+                {
+                    FileName = fileName,
+                    FileSize = fileSize,
+                    FileSizeFormatted = FileHelper.FormatFileSize(fileSize),
+                    DownloadMethod = downloadMethod,
+                    Request = new
+                    {
+                        IpAddress = additionalData?.GetValueOrDefault("ipAddress", "unknown"),
+                        UserAgent = additionalData?.GetValueOrDefault("userAgent", "unknown"),
+                        Timestamp = DateTime.UtcNow
+                    },
+                    Document = new
+                    {
+                        BucketId = additionalData?.GetValueOrDefault("bucketId"),
+                        CategoryId = additionalData?.GetValueOrDefault("categoryId")
+                    },
+                    AdditionalData = additionalData
+                })
+            };
+
+            await unitOfWork.ExecuteTransactionalAsync(async () =>
+            {
+                await unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+                return true;
+            }, cancellationToken);
+
+            logger.LogInformation("Document download logged successfully. DocumentId: {DocumentId}, UserId: {UserId}",
+                documentId, userId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error logging document download. DocumentId: {DocumentId}, UserId: {UserId}", 
+                documentId, userId);
+            // Don't throw - download should continue even if audit log fails
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task LogDocumentVersionDownloadedAsync(
+        string userId,
+        Guid documentId,
+        Guid versionId,
+        int versionNumber,
+        string fileName,
+        long fileSize,
+        Dictionary<string, string>? additionalData = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var auditLog = new AuditLog
+            {
+                UserId = userId,
+                Timestamp = DateTime.UtcNow,
+                EventType = "DocumentVersionDownloaded",
+                EntityType = "DocumentVersion",
+                EntityId = versionId.ToString(),
+                Description = $"Document version '{fileName}' (v{versionNumber}) downloaded",
+                Data = JsonSerializer.Serialize(new
+                {
+                    DocumentId = documentId,
+                    VersionId = versionId,
+                    VersionNumber = versionNumber,
+                    FileName = fileName,
+                    FileSize = fileSize,
+                    FileSizeFormatted = FileHelper.FormatFileSize(fileSize),
+                    Request = new
+                    {
+                        IpAddress = additionalData?.GetValueOrDefault("ipAddress", "unknown"),
+                        UserAgent = additionalData?.GetValueOrDefault("userAgent", "unknown"),
+                        Timestamp = DateTime.UtcNow
+                    },
+                    AdditionalData = additionalData
+                })
+            };
+
+            await unitOfWork.ExecuteTransactionalAsync(async () =>
+            {
+                await unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+                return true;
+            }, cancellationToken);
+
+            logger.LogInformation("Document version download logged successfully. DocumentId: {DocumentId}, VersionId: {VersionId}",
+                documentId, versionId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error logging document version download. DocumentId: {DocumentId}, VersionId: {VersionId}", 
+                documentId, versionId);
+            // Don't throw - download should continue even if audit log fails
+        }
     }
 }
