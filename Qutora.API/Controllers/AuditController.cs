@@ -242,7 +242,7 @@ public class AuditController(
 
     [HttpGet("statistics")]
     [Authorize(Policy = "Audit.Manage")]
-    public async Task<ActionResult<object>> GetAuditStatistics(
+    public async Task<ActionResult<AuditStatisticsDto>> GetAuditStatistics(
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
     {
@@ -259,30 +259,64 @@ public class AuditController(
                     (!endDate.HasValue || a.Timestamp <= endDate.Value));
             }
 
-            var statistics = new
+            // Calculate today's activities
+            var today = DateTime.Today;
+            var todayActivities = recentLogs.Count(a => a.Timestamp.Date == today);
+            // Calculate active users (users who performed activities in the filtered period)
+            var activeUsers = recentLogs.Select(a => a.UserId).Distinct().Count();
+
+            // Calculate critical events (delete, error, security related events)
+            var criticalEventTypes = new[] { "DocumentDeleted", "UserDeleted", "SecurityBreach", "LoginFailed", "UnauthorizedAccess" };
+            var criticalEvents = recentLogs.Count(a => criticalEventTypes.Any(ce => a.EventType.Contains(ce, StringComparison.OrdinalIgnoreCase)));
+
+            // Calculate hourly activity distribution
+            var hourlyActivity = new int[24];
+            foreach (var log in recentLogs)
+            {
+                hourlyActivity[log.Timestamp.Hour]++;
+            }
+
+            var statistics = new AuditStatisticsDto
             {
                 TotalActivities = recentLogs.Count(),
+                ActiveUsers = activeUsers,
+                TodayActivities = todayActivities,
+                CriticalEvents = criticalEvents,
                 EventTypeBreakdown = recentLogs
                     .GroupBy(a => a.EventType)
-                    .Select(g => new { EventType = g.Key, Count = g.Count() })
+                    .Select(g => new EventTypeBreakdownDto { EventType = g.Key, Count = g.Count() })
                     .OrderByDescending(x => x.Count)
                     .Take(10)
                     .ToList(),
                 EntityTypeBreakdown = recentLogs
                     .GroupBy(a => a.EntityType)
-                    .Select(g => new { EntityType = g.Key, Count = g.Count() })
+                    .Select(g => new EntityTypeBreakdownDto { EntityType = g.Key, Count = g.Count() })
                     .OrderByDescending(x => x.Count)
                     .Take(10)
                     .ToList(),
                 DailyActivity = recentLogs
                     .GroupBy(a => a.Timestamp.Date)
-                    .Select(g => new { Date = g.Key, Count = g.Count() })
+                    .Select(g => new DailyActivityDto { Date = g.Key, Count = g.Count() })
                     .OrderBy(x => x.Date)
                     .Take(30)
                     .ToList(),
+                HourlyActivity = hourlyActivity,
                 TopUsers = recentLogs
                     .GroupBy(a => a.UserId)
-                    .Select(g => new { UserId = g.Key, Count = g.Count() })
+                    .Select(g => new TopUserDto { UserId = g.Key, Count = g.Count() })
+                    .OrderByDescending(x => x.Count)
+                    .Take(10)
+                    .ToList(),
+                TopActivities = recentLogs
+                    .GroupBy(a => a.EventType)
+                    .Select((g, index) => new TopActivityDto
+                    { 
+                        Rank = index + 1,
+                        EventType = g.Key, 
+                        Count = g.Count(),
+                        Percentage = Math.Round((double)g.Count() / recentLogs.Count() * 100, 1),
+                        Trend = "up" // Bu gerçek trend hesaplaması için daha kompleks logic gerekir
+                    })
                     .OrderByDescending(x => x.Count)
                     .Take(10)
                     .ToList()
