@@ -524,4 +524,54 @@ public class AuditService(
             // Don't throw - download should continue even if audit log fails
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<AuditLogDto>> GetByEntityAsync(string entityType, string entityId, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var allLogs = await unitOfWork.AuditLogs.GetByEntityAsync(entityType, entityId);
+
+        var pagedLogs = allLogs
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return mapper.Map<IEnumerable<AuditLogDto>>(pagedLogs);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<AuditLogDto>> GetByActionAsync(string action, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var allLogs = await unitOfWork.AuditLogs.GetByActionAsync(action);
+
+        var pagedLogs = allLogs
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return mapper.Map<IEnumerable<AuditLogDto>>(pagedLogs);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<AuditLogDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var allLogs = await unitOfWork.AuditLogs.GetByDateRangeAsync(startDate, endDate);
+
+        var pagedLogs = allLogs
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return mapper.Map<IEnumerable<AuditLogDto>>(pagedLogs);
+    }
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<AuditLogDto>> GetRecentAsync(int count = 100,
+        CancellationToken cancellationToken = default)
+    {
+        var allLogs = await unitOfWork.AuditLogs.GetRecentAsync(count);
+        return mapper.Map<IEnumerable<AuditLogDto>>(allLogs);
+    }
 }

@@ -213,4 +213,48 @@ public interface IAuditService
         long fileSize,
         Dictionary<string, string>? additionalData = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets audit logs by entity type and ID
+    /// </summary>
+    /// <param name="entityType">Entity type (e.g., "Document", "User")</param>
+    /// <param name="entityId">Entity ID</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Audit logs for the specified entity</returns>
+    Task<IEnumerable<AuditLogDto>> GetByEntityAsync(string entityType, string entityId, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets audit logs by action/event type
+    /// </summary>
+    /// <param name="action">Action/event type (e.g., "DocumentCreated", "DocumentDeleted")</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Audit logs for the specified action</returns>
+    Task<IEnumerable<AuditLogDto>> GetByActionAsync(string action, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets audit logs by date range
+    /// </summary>
+    /// <param name="startDate">Start date</param>
+    /// <param name="endDate">End date</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Audit logs within the specified date range</returns>
+    Task<IEnumerable<AuditLogDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets recent audit logs
+    /// </summary>
+    /// <param name="count">Number of recent logs to retrieve</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Recent audit logs</returns>
+    Task<IEnumerable<AuditLogDto>> GetRecentAsync(int count = 100,
+        CancellationToken cancellationToken = default);
 }
