@@ -117,18 +117,14 @@ public class DocumentOrchestrationService(
                 schemaName,
                 shareOptions);
 
-            // 🔥 SERVICE KATMANINDA AUDIT LOG
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await LogDocumentCreatedAsync(request.UserId, documentDto.Id, documentDto.Name);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to log document creation audit for DocumentId: {DocumentId}", documentDto.Id);
-                }
-            });
+                await LogDocumentCreatedAsync(request.UserId, documentDto.Id, documentDto.Name);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document creation audit for DocumentId: {DocumentId}", documentDto.Id);
+            }
 
             return DocumentCreateResult.Success(documentDto, shareDto);
         }
@@ -179,18 +175,14 @@ public class DocumentOrchestrationService(
             // Step 3: Update document
             var updatedDocument = await documentService.UpdateAsync(request.Id, request.UpdateDto);
 
-            // 🔥 SERVICE KATMANINDA AUDIT LOG
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await LogDocumentUpdatedAsync(request.UserId, request.Id, updatedDocument.Name, request.UpdateDto);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to log document update audit for DocumentId: {DocumentId}", request.Id);
-                }
-            });
+                await LogDocumentUpdatedAsync(request.UserId, request.Id, updatedDocument.Name, request.UpdateDto);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document update audit for DocumentId: {DocumentId}", request.Id);
+            }
 
             return DocumentUpdateResult.Success(updatedDocument);
         }
@@ -228,18 +220,14 @@ public class DocumentOrchestrationService(
                 return DocumentDeleteResult.Failure("Document could not be deleted");
             }
 
-            // 🔥 SERVICE KATMANINDA AUDIT LOG
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await LogDocumentDeletedAsync(request.UserId, request.Id, existingDocument.Name);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to log document deletion audit for DocumentId: {DocumentId}", request.Id);
-                }
-            });
+                await LogDocumentDeletedAsync(request.UserId, request.Id, existingDocument.Name);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document deletion audit for DocumentId: {DocumentId}", request.Id);
+            }
 
             return DocumentDeleteResult.Success();
         }
@@ -274,18 +262,15 @@ public class DocumentOrchestrationService(
 
             var result = DocumentDownloadResult.Success(fileStream, document.FileName, document.ContentType);
 
-            // 🔥 SERVICE KATMANINDA AUDIT LOG
-            _ = Task.Run(async () =>
+          
+            try
             {
-                try
-                {
-                    await LogDocumentDownloadAsync(request.UserId, request.Id, document.FileName, document.FileSize, "DirectDownload");
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to log document download audit for DocumentId: {DocumentId}", request.Id);
-                }
-            });
+                await LogDocumentDownloadAsync(request.UserId, request.Id, document.FileName, document.FileSize, "DirectDownload");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document download audit for DocumentId: {DocumentId}", request.Id);
+            }
 
             return result;
         }
