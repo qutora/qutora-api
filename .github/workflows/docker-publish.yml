@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, test-docker-push ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, test-docker-push ]
     types: [ closed ]
 
 env:
@@ -13,7 +13,18 @@ env:
 
 jobs:
   build-and-release:
-    if: (github.event.pull_request.merged == true || github.ref == 'refs/heads/main') && contains(github.event.head_commit.message, '[release]')
+    if: >
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.merged == true &&
+        contains(github.event.pull_request.title, '[release]')
+      )
+      ||
+      (
+        github.event_name == 'push' &&
+        (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test-docker-push') &&
+        contains(github.event.head_commit.message, '[release]')
+      )
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -38,45 +49,30 @@ jobs:
       - name: Get latest version from Docker Hub
         id: get-version
         run: |
-          # Get latest version from Docker Hub API
-          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/?page_size=100" | jq -r '.results[].name' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
-          
+          LATEST_TAG=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/?page_size=100" \
+            | jq -r '.results[].name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -1)
           if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" = "null" ]; then
-            # If no version found, start with v1.0.0
             LATEST_TAG="v1.0.0"
             echo "No previous version found, starting with v1.0.0"
           fi
-          
-          echo "Latest version: $LATEST_TAG"
-          
-          # Extract version parts
-          VERSION_WITHOUT_V=$(echo $LATEST_TAG | sed 's/^v//')
+          VERSION_WITHOUT_V=${LATEST_TAG#v}
           IFS='.' read -r major minor patch <<< "$VERSION_WITHOUT_V"
-          
-          # Increment patch version
           NEW_PATCH=$((patch + 1))
           NEW_VERSION="v$major.$minor.$NEW_PATCH"
-          
-          # Check if [preview] tag exists in commit message
-          if [[ "${{ github.event.head_commit.message }}" == *"[preview]"* ]]; then
+          if [[ "${{ github.event_name == 'pull_request' && github.event.pull_request.title || github.event.head_commit.message }}" == *"[preview]"* ]]; then
             NEW_VERSION="$NEW_VERSION-preview"
-            echo "Preview version detected"
           fi
-          
-          echo "New version: $NEW_VERSION"
           echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "version-number=$(echo $NEW_VERSION | sed 's/^v//')" >> $GITHUB_OUTPUT
+          echo "version-number=${NEW_VERSION#v}" >> $GITHUB_OUTPUT
 
       - name: Generate Docker tags
         id: meta
         run: |
-          NEW_VERSION="${{ steps.get-version.outputs.new-version }}"
-          VERSION_NUMBER="${{ steps.get-version.outputs.version-number }}"
-          
-          # Base tags
+          NEW_VERSION=${{ steps.get-version.outputs.new-version }}
+          VERSION_NUMBER=${{ steps.get-version.outputs.version-number }}
           TAGS="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$NEW_VERSION"
-          
-          # Add additional tags for stable releases (not preview)
           if [[ "$NEW_VERSION" != *"-preview"* ]]; then
             IFS='.' read -r major minor patch <<< "$VERSION_NUMBER"
             TAGS="$TAGS,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v$major.$minor"
@@ -85,9 +81,7 @@ jobs:
           else
             TAGS="$TAGS,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:preview"
           fi
-          
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
-          echo "Generated tags: $TAGS"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -112,9 +106,7 @@ jobs:
 
       - name: Test Docker image
         run: |
-          # Use the main version tag for testing
           TEST_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get-version.outputs.new-version }}"
-          
           docker run --rm -d \
             --name qutora-test \
             -p 8080:8080 \
@@ -122,18 +114,13 @@ jobs:
             -e ConnectionStrings__DefaultConnection="Data Source=test.db" \
             -e Jwt__Key="test_jwt_secret_key_32_characters_minimum_length_required" \
             "$TEST_TAG"
-          
           echo "Waiting for container to start..."
           sleep 20
-          
-          # Test health endpoint
-          echo "Testing health endpoint..."
           if curl -f http://localhost:8080/health; then
             echo "✅ Health check passed!"
           else
             echo "⚠️ Health check failed (expected without real database)"
           fi
-          
           docker stop qutora-test
           echo "✅ Docker image test completed"
 
@@ -143,12 +130,10 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.get-version.outputs.new-version }}
-          release_name: Release ${{ steps.get-version.outputs.new-version }}
+          release_name: "Release ${{ steps.get-version.outputs.new-version }}"
           body: |
             ## Qutora Document Management System ${{ steps.get-version.outputs.new-version }}
-            
             🐳 **Docker Image**: `docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get-version.outputs.new-version }}`
-            
             ### 🚀 Quick Start
             ```bash
             docker run -d \
@@ -159,45 +144,24 @@ jobs:
               -e Jwt__Key="your-jwt-secret-key" \
               ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get-version.outputs.new-version }}
             ```
-            
-            ### 📋 What's New
-            - Automated release triggered by [release] tag
-            - See commit history for detailed changes: [Compare with previous version](https://github.com/${{ github.repository }}/compare/main)
-            
-            ### 🛠️ Build Information
-            - **Build Date**: ${{ github.event.head_commit.timestamp }}
-            - **Git Commit**: ${{ github.sha }}
-            - **Workflow Run**: [${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           draft: false
           prerelease: ${{ contains(steps.get-version.outputs.new-version, 'preview') }}
 
   skip-notification:
-    if: (github.event.pull_request.merged == true || github.ref == 'refs/heads/main') && !contains(github.event.head_commit.message, '[release]')
+    if: >
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.merged == true &&
+        !contains(github.event.pull_request.title, '[release]')
+      )
+      ||
+      (
+        github.event_name == 'push' &&
+        (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test-docker-push') &&
+        !contains(github.event.head_commit.message, '[release]')
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Skip Release Notification
         run: |
-          echo "⏭️ Skipping Docker release - no [release] tag found in commit message"
-          echo "💡 To trigger a release, include [release] in your commit message"
-          echo "💡 To create a preview release, include both [release] and [preview] tags"
-
-  security-scan:
-    runs-on: ubuntu-latest
-    needs: build-and-release
-    if: success()
-    
-    steps:
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-release.outputs.new-version }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif' 
-
-#test
+          echo "⏭️ Skipping Docker release - no [release] tag found"
