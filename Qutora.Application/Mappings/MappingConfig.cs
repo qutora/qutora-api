@@ -232,6 +232,20 @@ public static class MappingConfig
         config.NewConfig<UpdateEmailTemplateDto, EmailTemplate>()
             .Map(dest => dest.UpdatedAt, src => DateTime.UtcNow);
 
+        // AuditLog mapping
+        config.NewConfig<AuditLog, AuditLogDto>()
+            .Map(dest => dest.Id, src => src.Id)
+            .Map(dest => dest.UserId, src => src.UserId)
+            .Map(dest => dest.UserName, src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : null)
+            .Map(dest => dest.Timestamp, src => src.Timestamp)
+            .Map(dest => dest.EventType, src => src.EventType)
+            .Map(dest => dest.EntityType, src => src.EntityType)
+            .Map(dest => dest.EntityId, src => src.EntityId)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.Data, src => src.Data)
+            .Map(dest => dest.CreatedAt, src => src.CreatedAt)
+            .Map(dest => dest.UpdatedAt, src => src.UpdatedAt);
+
         return config;
     }
 }

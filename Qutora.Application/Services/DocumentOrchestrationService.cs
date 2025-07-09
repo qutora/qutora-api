@@ -319,10 +319,30 @@ public class DocumentOrchestrationService(
     private Dictionary<string, string> GetHttpContextData()
     {
         var httpContext = httpContextAccessor.HttpContext;
+        if (httpContext == null)
+        {
+            return new Dictionary<string, string>
+            {
+                {"ipAddress", "unknown"},
+                {"userAgent", "unknown"}
+            };
+        }
+
+        // Priority: Client headers > Proxy headers > Connection info
+        var clientIp = httpContext.Request.Headers["X-Client-IP"].FirstOrDefault()
+                      ?? httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
+                      ?? httpContext.Request.Headers["X-Real-IP"].FirstOrDefault()
+                      ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                      ?? "unknown";
+
+        var userAgent = httpContext.Request.Headers["X-User-Agent"].FirstOrDefault()
+                       ?? httpContext.Request.Headers["User-Agent"].FirstOrDefault()
+                       ?? "unknown";
+
         return new Dictionary<string, string>
         {
-            {"ipAddress", httpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown"},
-            {"userAgent", httpContext?.Request.Headers["User-Agent"].ToString() ?? "unknown"}
+            {"ipAddress", clientIp},
+            {"userAgent", userAgent}
         };
     }
 } 

@@ -22,6 +22,7 @@ public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .Include(al => al.User)
             .Where(al => al.UserId == userId)
             .OrderByDescending(al => al.Timestamp)
             .ToListAsync(cancellationToken);
@@ -34,6 +35,7 @@ public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .Include(al => al.User)
             .Where(al => al.EventType == action)
             .OrderByDescending(al => al.Timestamp)
             .ToListAsync(cancellationToken);
@@ -46,6 +48,7 @@ public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .Include(al => al.User)
             .Where(al => al.EntityType == entityType && al.EntityId == entityId)
             .OrderByDescending(al => al.Timestamp)
             .ToListAsync(cancellationToken);
@@ -58,6 +61,7 @@ public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .Include(al => al.User)
             .Where(al => al.Timestamp >= startDate && al.Timestamp <= endDate)
             .OrderByDescending(al => al.Timestamp)
             .ToListAsync(cancellationToken);
@@ -70,6 +74,7 @@ public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .Include(al => al.User)
             .OrderByDescending(al => al.Timestamp)
             .Take(count)
             .ToListAsync(cancellationToken);
