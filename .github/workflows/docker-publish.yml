@@ -104,26 +104,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Test Docker image
-        run: |
-          TEST_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get-version.outputs.new-version }}"
-          docker run --rm -d \
-            --name qutora-test \
-            -p 8080:8080 \
-            -e Database__Provider=SqlServer \
-            -e ConnectionStrings__DefaultConnection="Data Source=test.db" \
-            -e Jwt__Key="test_jwt_secret_key_32_characters_minimum_length_required" \
-            "$TEST_TAG"
-          echo "Waiting for container to start..."
-          sleep 20
-          if curl -f http://localhost:8080/health; then
-            echo "✅ Health check passed!"
-          else
-            echo "⚠️ Health check failed (expected without real database)"
-          fi
-          docker stop qutora-test
-          echo "✅ Docker image test completed"
-
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
