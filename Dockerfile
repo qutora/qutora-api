@@ -9,14 +9,14 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 # Set build arguments
 ARG BUILDPLATFORM
 ARG TARGETPLATFORM
-ARG VERSION=latest
+ARG IMAGE_VERSION=latest
 ARG BUILD_DATE
 ARG VCS_REF
 
 # Add metadata labels
 LABEL org.opencontainers.image.title="Qutora Document Management System"
 LABEL org.opencontainers.image.description="Enterprise document management system with multi-database support"
-LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.created="${BUILD_DATE}"
 LABEL org.opencontainers.image.revision="${VCS_REF}"
 LABEL org.opencontainers.image.vendor="Qutora"
@@ -64,7 +64,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 # Add metadata to final image
 LABEL org.opencontainers.image.title="Qutora Document Management System"
 LABEL org.opencontainers.image.description="Enterprise document management system with multi-database support"
-LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.licenses="MIT"
 
 # Install system dependencies
