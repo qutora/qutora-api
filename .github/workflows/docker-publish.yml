@@ -57,18 +57,18 @@ jobs:
       - name: Output the new version
         run: echo "Bumped from ${{ env.LATEST }} → ${{ steps.bump.outputs.new_version }}"
 
-      - name: Ensure Git repo for tag push
+      - name: Checkout with full history for tagging
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Tag and push the new version
-        uses: actions-ecosystem/action-push-tag@v1
-        with:
-          tag: ${{ steps.bump.outputs.new_version }}
-          commit_sha: ${{ github.sha }}
-          message: "Release ${{ steps.bump.outputs.new_version }}"
+      - name: Tag the release
+        run: git tag ${{ steps.bump.outputs.new_version }}
+
+      - name: Push the tag
+        run: git push origin refs/tags/${{ steps.bump.outputs.new_version }}
+
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
