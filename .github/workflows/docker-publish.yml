@@ -1,53 +1,111 @@
-name: Build & Release (.NET + semantic-release)
+name: Docker Build and Release
+
 on:
   push:
     branches: [test]
 
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: qutora/qutora-api
+
 jobs:
-  release:
+  build-and-release:
+    if: contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
-      pull-requests: write
-      id-token: write
+
+    outputs:
+      new-version: ${{ steps.bump.outputs.new_version }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code and tags
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Fetch latest tag from Docker Hub
+        id: get_tag
+        run: |
+          LATEST=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/?page_size=100" \
+            | jq -r '.results[].name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -1)
+          if [[ -z "$LATEST" ]]; then
+            echo "LATEST=v0.0.0" >> $GITHUB_ENV
+          else
+            echo "LATEST=$LATEST" >> $GITHUB_ENV
+          fi
+
+      - name: Determine bump level based on commit/PR title
+        id: detect
+        run: |
+          MSG="${{ github.event_name == 'pull_request' && github.event.pull_request.title || github.event.head_commit.message }}"
+          if [[ "$MSG" =~ \[major\] ]]; then echo "LEVEL=major"; \
+          elif [[ "$MSG" =~ \[minor\] ]]; then echo "LEVEL=minor"; \
+          else echo "LEVEL=patch"; fi >> $GITHUB_ENV
+
+      - name: Bump semantic version
+        id: bump
+        uses: actions-ecosystem/action-bump-semver@v1
         with:
-          dotnet-version: |
-            9.0.x
+          current_version: ${{ env.LATEST }}
+          level: ${{ env.LEVEL }}
 
-      - name: Build & test
-        run: dotnet build --configuration Release
+      - name: Output the new version
+        run: echo "Bumped from ${{ env.LATEST }} → ${{ steps.bump.outputs.new_version }}"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Tag and push the new version
+        uses: actions-ecosystem/action-push-tag@v1
         with:
-          node-version: '20'
+          tag: ${{ steps.bump.outputs.new_version }}
+          message: "Release ${{ steps.bump.outputs.new_version }}"
 
-      - name: Install semantic-release and plugin
-        run: npm install semantic-release semantic-release-dotnet
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Run semantic-release
-        id: semrel
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          labels: |
+            org.opencontainers.image.title=Qutora Document Management System
+            org.opencontainers.image.version=${{ steps.bump.outputs.new_version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=MIT
+          build-args: |
+            VERSION=${{ steps.bump.outputs.new_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
-        run: npx semantic-release
+        with:
+          tag_name: ${{ steps.bump.outputs.new_version }}
+          release_name: "Release ${{ steps.bump.outputs.new_version }}"
+          body: |
+            ## Qutora API ${{ steps.bump.outputs.new_version }}
+            🚀 Docker image: `docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}`
 
-      - name: Build & push Docker
-        if: steps.semrel.outputs.nextRelease.version
-        env:
-          VERSION: ${{ steps.semrel.outputs.nextRelease.version }}
-        run: |
-          echo "Logging in..."
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login docker.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          docker build -t docker.io/qutora/qutora-api:v$VERSION .
-          docker push docker.io/qutora/qutora-api:v$VERSION
-          docker tag docker.io/qutora/qutora-api:v$VERSION docker.io/qutora/qutora-api:latest
-          docker push yourdockerhub/qutora/qutora-api:latest
+  skip-notification:
+    if: github.ref == 'refs/heads/test' && !contains(github.event.head_commit.message, '[release]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: No release detected
+        run: echo "⏭️ No [release] tag found, skipping build-and-release."
