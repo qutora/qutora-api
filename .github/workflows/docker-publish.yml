@@ -67,6 +67,7 @@ jobs:
         uses: actions-ecosystem/action-push-tag@v1
         with:
           tag: ${{ steps.bump.outputs.new_version }}
+          commit_sha: ${{ github.sha }}
           message: "Release ${{ steps.bump.outputs.new_version }}"
 
       - name: Set up Docker Buildx
