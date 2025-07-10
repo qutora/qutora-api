@@ -1,0 +1,22 @@
+{
+    "branches": ["test"],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "semantic-release-dotnet",
+        {
+          "configuration": "Release",
+          "pack": true,
+          "sources": [
+            {
+              "url": "https://api.nuget.org/v3/index.json",
+              "apiKeyEnvVar": "NUGET_TOKEN"
+            }
+          ]
+        }
+      ],
+      "@semantic-release/github"
+    ]
+  }
+  

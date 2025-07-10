@@ -1,12 +1,7 @@
-name: Build & Release (semantic-release + Docker Hub)
-
+name: Build & Release (.NET + semantic-release)
 on:
   push:
     branches: [test]
-
-env:
-  REGISTRY: docker.io
-  IMAGE_NAME: qutora/qutora-api
 
 jobs:
   release:
@@ -14,43 +9,44 @@ jobs:
     permissions:
       contents: write
       packages: write
-      issues: write
       pull-requests: write
       id-token: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build & test
+        run: dotnet build --configuration Release
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install semantic-release and plugin
+        run: npm install semantic-release semantic-release-dotnet
 
-      - name: Publish release
-        id: semantic
+      - name: Run semantic-release
+        id: semrel
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
         run: npx semantic-release
 
-      - name: Log in to Docker Hub 🔐
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build & push Docker image
-        if: steps.semantic.outputs.nextRelease.version
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ steps.semantic.outputs.nextRelease.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Build & push Docker
+        if: steps.semrel.outputs.nextRelease.version
+        env:
+          VERSION: ${{ steps.semrel.outputs.nextRelease.version }}
+        run: |
+          echo "Logging in..."
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login docker.io -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build -t docker.io/qutora/qutora-api:v$VERSION .
+          docker push docker.io/qutora/qutora-api:v$VERSION
+          docker tag docker.io/qutora/qutora-api:v$VERSION docker.io/qutora/qutora-api:latest
+          docker push yourdockerhub/qutora/qutora-api:latest
