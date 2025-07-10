@@ -69,7 +69,6 @@ jobs:
       - name: Push the tag
         run: git push origin refs/tags/${{ steps.bump.outputs.new_version }}
 
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
