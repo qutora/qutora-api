@@ -173,4 +173,88 @@ public interface IAuditService
         int page = 1,
         int pageSize = 10,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Logs document download activity with comprehensive metadata
+    /// </summary>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="fileName">File name</param>
+    /// <param name="fileSize">File size in bytes</param>
+    /// <param name="downloadMethod">Download method (DirectDownload, etc.)</param>
+    /// <param name="additionalData">Additional information (optional)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task LogDocumentDownloadedAsync(
+        string userId,
+        Guid documentId,
+        string fileName,
+        long fileSize,
+        string downloadMethod = "DirectDownload",
+        Dictionary<string, string>? additionalData = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Logs document version download activity
+    /// </summary>
+    /// <param name="userId">ID of user performing the operation</param>
+    /// <param name="documentId">Document ID</param>
+    /// <param name="versionId">Version ID</param>
+    /// <param name="versionNumber">Version number</param>
+    /// <param name="fileName">File name</param>
+    /// <param name="fileSize">File size in bytes</param>
+    /// <param name="additionalData">Additional information (optional)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task LogDocumentVersionDownloadedAsync(
+        string userId,
+        Guid documentId,
+        Guid versionId,
+        int versionNumber,
+        string fileName,
+        long fileSize,
+        Dictionary<string, string>? additionalData = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets audit logs by entity type and ID
+    /// </summary>
+    /// <param name="entityType">Entity type (e.g., "Document", "User")</param>
+    /// <param name="entityId">Entity ID</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Audit logs for the specified entity</returns>
+    Task<IEnumerable<AuditLogDto>> GetByEntityAsync(string entityType, string entityId, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets audit logs by action/event type
+    /// </summary>
+    /// <param name="action">Action/event type (e.g., "DocumentCreated", "DocumentDeleted")</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Audit logs for the specified action</returns>
+    Task<IEnumerable<AuditLogDto>> GetByActionAsync(string action, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets audit logs by date range
+    /// </summary>
+    /// <param name="startDate">Start date</param>
+    /// <param name="endDate">End date</param>
+    /// <param name="page">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Audit logs within the specified date range</returns>
+    Task<IEnumerable<AuditLogDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, int page = 1, int pageSize = 10,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets recent audit logs
+    /// </summary>
+    /// <param name="count">Number of recent logs to retrieve</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Recent audit logs</returns>
+    Task<IEnumerable<AuditLogDto>> GetRecentAsync(int count = 100,
+        CancellationToken cancellationToken = default);
 }

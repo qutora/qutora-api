@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using Qutora.Application.Interfaces;
 using Qutora.Domain.Entities;
 using Qutora.Infrastructure.Exceptions;
@@ -6,6 +7,7 @@ using Qutora.Infrastructure.Interfaces;
 using Qutora.Infrastructure.Interfaces.Storage;
 using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
+using System.Security.Claims;
 
 namespace Qutora.Application.Services;
 
@@ -16,20 +18,10 @@ public class DocumentVersionService(
     IUnitOfWork unitOfWork,
     IStorageManager storageManager,
     IAuditService auditService,
+    IHttpContextAccessor httpContextAccessor,
     ILogger<DocumentVersionService> logger)
     : IDocumentVersionService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-
-    private readonly IStorageManager _storageManager =
-        storageManager ?? throw new ArgumentNullException(nameof(storageManager));
-
-    private readonly IAuditService
-        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly ILogger<DocumentVersionService>
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
     /// <inheritdoc/>
     public async Task<DocumentVersionDto> CreateNewVersionAsync(
         Guid documentId,
@@ -41,23 +33,23 @@ public class DocumentVersionService(
     {
         try
         {
-            return await _unitOfWork.ExecuteTransactionalAsync(async () =>
+            return await unitOfWork.ExecuteTransactionalAsync(async () =>
             {
-                var document = await _unitOfWork.Documents.GetByIdAsync(documentId);
+                var document = await unitOfWork.Documents.GetByIdAsync(documentId);
                 if (document == null)
                     throw new ArgumentException($"Document not found. ID: {documentId}", nameof(documentId));
 
-                var lastVersionNumber = await _unitOfWork.DocumentVersions.GetLastVersionNumberAsync(documentId);
+                var lastVersionNumber = await unitOfWork.DocumentVersions.GetLastVersionNumberAsync(documentId);
                 var newVersionNumber = lastVersionNumber + 1;
 
-                var storageProvider = await _storageManager.GetProviderAsync(document.StorageProviderId.ToString());
+                var storageProvider = await storageManager.GetProviderAsync(document.StorageProviderId.ToString());
 
                 string? bucketName = null;
                 if (document.BucketId.HasValue)
                 {
-                    var bucket = await _unitOfWork.StorageBuckets.GetByIdAsync(document.BucketId.Value);
+                    var bucket = await unitOfWork.StorageBuckets.GetByIdAsync(document.BucketId.Value);
                     bucketName = bucket?.Path;
-                    _logger.LogInformation(
+                    logger.LogInformation(
                         "Document has bucket assigned. BucketId: {BucketId}, BucketName: {BucketName}",
                         document.BucketId.Value, bucketName);
                 }
@@ -92,9 +84,9 @@ public class DocumentVersionService(
                     Hash = uploadResult.FileHash
                 };
 
-                await _unitOfWork.DocumentVersions.AddAsync(version);
+                await unitOfWork.DocumentVersions.AddAsync(version);
 
-                await _unitOfWork.SaveChangesAsync();
+                await unitOfWork.SaveChangesAsync();
 
                 document.CurrentVersionId = version.Id;
                 document.FileName = version.FileName;
@@ -103,9 +95,9 @@ public class DocumentVersionService(
                 document.StoragePath = version.StoragePath;
                 document.Hash = version.Hash ?? document.Hash;
 
-                await _unitOfWork.Documents.UpdateAsync(document);
+                await unitOfWork.Documents.UpdateAsync(document);
 
-                await _auditService.LogDocumentVersionCreatedAsync(
+                await auditService.LogDocumentVersionCreatedAsync(
                     userId,
                     documentId,
                     version.Id,
@@ -134,13 +126,13 @@ public class DocumentVersionService(
         }
         catch (ConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Concurrency error occurred while creating version. Document ID: {DocumentId}",
+            logger.LogWarning(ex, "Concurrency error occurred while creating version. Document ID: {DocumentId}",
                 documentId);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while creating version. Document ID: {DocumentId}", documentId);
+            logger.LogError(ex, "Error occurred while creating version. Document ID: {DocumentId}", documentId);
             throw;
         }
     }
@@ -150,11 +142,11 @@ public class DocumentVersionService(
     {
         try
         {
-            var document = await _unitOfWork.Documents.GetByIdAsync(documentId);
+            var document = await unitOfWork.Documents.GetByIdAsync(documentId);
             if (document == null)
                 throw new ArgumentException($"Document not found. ID: {documentId}", nameof(documentId));
 
-            var versions = await _unitOfWork.DocumentVersions.GetByDocumentIdAsync(documentId);
+            var versions = await unitOfWork.DocumentVersions.GetByDocumentIdAsync(documentId);
 
             return versions.Select(v => new DocumentVersionDto
             {
@@ -174,7 +166,7 @@ public class DocumentVersionService(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while listing versions. Document ID: {DocumentId}", documentId);
+            logger.LogError(ex, "Error occurred while listing versions. Document ID: {DocumentId}", documentId);
             throw;
         }
     }
@@ -184,25 +176,25 @@ public class DocumentVersionService(
     {
         try
         {
-            var version = await _unitOfWork.DocumentVersions.GetDetailAsync(versionId);
+            var version = await unitOfWork.DocumentVersions.GetDetailAsync(versionId);
             if (version == null)
                 throw new ArgumentException($"Version not found. ID: {versionId}", nameof(versionId));
 
-            var document = await _unitOfWork.Documents.GetByIdAsync(version.DocumentId);
+            var document = await unitOfWork.Documents.GetByIdAsync(version.DocumentId);
             if (document == null) throw new ArgumentException($"Document not found. ID: {version.DocumentId}");
 
-            var storageProvider = await _storageManager.GetProviderAsync(document.StorageProviderId.ToString());
+            var storageProvider = await storageManager.GetProviderAsync(document.StorageProviderId.ToString());
 
             var expiryInSeconds = 3600;
 
             var downloadUrl = await storageProvider.GetDownloadUrlAsync(version.StoragePath, expiryInSeconds);
 
-            return await _unitOfWork.ExecuteTransactionalAsync(async () =>
+            return await unitOfWork.ExecuteTransactionalAsync(async () =>
             {
                 document.LastAccessedAt = DateTime.UtcNow;
-                await _unitOfWork.Documents.UpdateAsync(document);
+                await unitOfWork.Documents.UpdateAsync(document);
 
-                return new DocumentVersionDownloadDto
+                var result = new DocumentVersionDownloadDto
                 {
                     DownloadUrl = downloadUrl,
                     FileName = version.FileName,
@@ -211,16 +203,36 @@ public class DocumentVersionService(
                     GeneratedAt = DateTime.UtcNow,
                     ExpiresInSeconds = expiryInSeconds
                 };
+
+                // 🔥 SERVICE KATMANINDA AUDIT LOG
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await LogVersionDownloadAsync(
+                            version.DocumentId,
+                            versionId,
+                            version.VersionNumber,
+                            version.FileName,
+                            version.FileSize);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to log version download audit for VersionId: {VersionId}", versionId);
+                    }
+                });
+
+                return result;
             });
         }
         catch (ConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Concurrency error occurred while downloading version: {VersionId}", versionId);
+            logger.LogWarning(ex, "Concurrency error occurred while downloading version: {VersionId}", versionId);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while downloading version. Version ID: {VersionId}", versionId);
+            logger.LogError(ex, "Error occurred while downloading version. Version ID: {VersionId}", versionId);
             throw;
         }
     }
@@ -230,18 +242,18 @@ public class DocumentVersionService(
     {
         try
         {
-            return await _unitOfWork.ExecuteTransactionalAsync(async () =>
+            return await unitOfWork.ExecuteTransactionalAsync(async () =>
             {
-                var version = await _unitOfWork.DocumentVersions.GetDetailAsync(versionId);
+                var version = await unitOfWork.DocumentVersions.GetDetailAsync(versionId);
                 if (version == null)
                     throw new ArgumentException($"Version not found. ID: {versionId}", nameof(versionId));
 
-                var document = await _unitOfWork.Documents.GetByIdAsync(version.DocumentId);
+                var document = await unitOfWork.Documents.GetByIdAsync(version.DocumentId);
                 if (document == null) throw new ArgumentException($"Document not found. ID: {version.DocumentId}");
 
                 if (document.CurrentVersionId == version.Id)
                 {
-                    _logger.LogInformation("Version is already current, no rollback performed: {VersionId}",
+                    logger.LogInformation("Version is already current, no rollback performed: {VersionId}",
                         versionId);
 
                     return new DocumentVersionDto
@@ -270,9 +282,9 @@ public class DocumentVersionService(
                 document.LastAccessedAt = DateTime.UtcNow;
                 if (!string.IsNullOrEmpty(version.Hash)) document.Hash = version.Hash;
 
-                await _unitOfWork.Documents.UpdateAsync(document);
+                await unitOfWork.Documents.UpdateAsync(document);
 
-                await _auditService.LogDocumentVersionRolledBackAsync(
+                await auditService.LogDocumentVersionRolledBackAsync(
                     userId,
                     version.DocumentId,
                     version.Id,
@@ -302,13 +314,13 @@ public class DocumentVersionService(
         }
         catch (ConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Concurrency error occurred while rolling back to version: {VersionId}",
+            logger.LogWarning(ex, "Concurrency error occurred while rolling back to version: {VersionId}",
                 versionId);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while rolling back to version. Version ID: {VersionId}", versionId);
+            logger.LogError(ex, "Error occurred while rolling back to version. Version ID: {VersionId}", versionId);
             throw;
         }
     }
@@ -318,11 +330,11 @@ public class DocumentVersionService(
     {
         try
         {
-            var version = await _unitOfWork.DocumentVersions.GetDetailAsync(versionId);
+            var version = await unitOfWork.DocumentVersions.GetDetailAsync(versionId);
             if (version == null)
                 throw new ArgumentException($"Version not found. ID: {versionId}", nameof(versionId));
 
-            var document = await _unitOfWork.Documents.GetByIdAsync(version.DocumentId);
+            var document = await unitOfWork.Documents.GetByIdAsync(version.DocumentId);
             if (document == null) throw new ArgumentException($"Document not found. ID: {version.DocumentId}");
 
             return new DocumentVersionDto
@@ -344,8 +356,45 @@ public class DocumentVersionService(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while retrieving version details. Version ID: {VersionId}", versionId);
+            logger.LogError(ex, "Error occurred while retrieving version details. Version ID: {VersionId}", versionId);
             throw;
         }
+    }
+
+    private async Task LogVersionDownloadAsync(Guid documentId, Guid versionId, int versionNumber, string fileName, long fileSize)
+    {
+        var httpContextData = GetHttpContextData();
+        var userId = GetCurrentUserId();
+
+        await auditService.LogDocumentVersionDownloadedAsync(
+            userId,
+            documentId,
+            versionId,
+            versionNumber,
+            fileName,
+            fileSize,
+            httpContextData);
+    }
+
+    /// <summary>
+    /// Get HTTP context information for audit logging
+    /// </summary>
+    private Dictionary<string, string> GetHttpContextData()
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+        return new Dictionary<string, string>
+        {
+            {"ipAddress", httpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown"},
+            {"userAgent", httpContext?.Request.Headers["User-Agent"].ToString() ?? "unknown"}
+        };
+    }
+
+    /// <summary>
+    /// Get current user ID from HTTP context
+    /// </summary>
+    private string GetCurrentUserId()
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+        return httpContext?.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "unknown";
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using Qutora.Application.Interfaces;
 using Qutora.Infrastructure.Interfaces;
 using Qutora.Shared.DTOs;
@@ -15,6 +16,8 @@ public class DocumentOrchestrationService(
     IDocumentAuthorizationService authorizationService,
     IDocumentStorageService storageService,
     IMetadataSchemaService metadataSchemaService,
+    IAuditService auditService,
+    IHttpContextAccessor httpContextAccessor,
     ILogger<DocumentOrchestrationService> logger)
     : IDocumentOrchestrationService
 {
@@ -114,6 +117,15 @@ public class DocumentOrchestrationService(
                 schemaName,
                 shareOptions);
 
+            try
+            {
+                await LogDocumentCreatedAsync(request.UserId, documentDto.Id, documentDto.Name);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document creation audit for DocumentId: {DocumentId}", documentDto.Id);
+            }
+
             return DocumentCreateResult.Success(documentDto, shareDto);
         }
         catch (ArgumentException ex)
@@ -163,6 +175,15 @@ public class DocumentOrchestrationService(
             // Step 3: Update document
             var updatedDocument = await documentService.UpdateAsync(request.Id, request.UpdateDto);
 
+            try
+            {
+                await LogDocumentUpdatedAsync(request.UserId, request.Id, updatedDocument.Name, request.UpdateDto);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document update audit for DocumentId: {DocumentId}", request.Id);
+            }
+
             return DocumentUpdateResult.Success(updatedDocument);
         }
         catch (Exception ex)
@@ -199,6 +220,15 @@ public class DocumentOrchestrationService(
                 return DocumentDeleteResult.Failure("Document could not be deleted");
             }
 
+            try
+            {
+                await LogDocumentDeletedAsync(request.UserId, request.Id, existingDocument.Name);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document deletion audit for DocumentId: {DocumentId}", request.Id);
+            }
+
             return DocumentDeleteResult.Success();
         }
         catch (Exception ex)
@@ -230,12 +260,89 @@ public class DocumentOrchestrationService(
             // Step 3: Download document
             var fileStream = await documentService.DownloadAsync(request.Id);
 
-            return DocumentDownloadResult.Success(fileStream, document.FileName, document.ContentType);
+            var result = DocumentDownloadResult.Success(fileStream, document.FileName, document.ContentType);
+
+          
+            try
+            {
+                await LogDocumentDownloadAsync(request.UserId, request.Id, document.FileName, document.FileSize, "DirectDownload");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to log document download audit for DocumentId: {DocumentId}", request.Id);
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error downloading document {DocumentId}", request.Id);
             return DocumentDownloadResult.Failure("An error occurred while downloading the document");
         }
+    }
+
+    // 🔥 PRIVATE AUDIT LOG METHODS
+    private async Task LogDocumentCreatedAsync(string userId, Guid documentId, string documentName)
+    {
+        var httpContextData = GetHttpContextData();
+        await auditService.LogDocumentCreatedAsync(userId, documentId, documentName, httpContextData);
+    }
+
+    private async Task LogDocumentUpdatedAsync(string userId, Guid documentId, string documentName, UpdateDocumentDto updateDto)
+    {
+        var httpContextData = GetHttpContextData();
+        var changes = new Dictionary<string, object>
+        {
+            {"Name", updateDto.Name},
+            {"CategoryId", updateDto.CategoryId},
+            {"BucketId", updateDto.BucketId}
+        };
+
+        await auditService.LogDocumentUpdatedAsync(userId, documentId, documentName, changes, httpContextData);
+    }
+
+    private async Task LogDocumentDeletedAsync(string userId, Guid documentId, string documentName)
+    {
+        var httpContextData = GetHttpContextData();
+        await auditService.LogDocumentDeletedAsync(userId, documentId, documentName, httpContextData);
+    }
+
+    private async Task LogDocumentDownloadAsync(string userId, Guid documentId, string fileName, long fileSize, string downloadType)
+    {
+        var httpContextData = GetHttpContextData();
+        await auditService.LogDocumentDownloadedAsync(userId, documentId, fileName, fileSize, downloadType, httpContextData);
+    }
+
+    /// <summary>
+    /// Get HTTP context information for audit logging
+    /// </summary>
+    private Dictionary<string, string> GetHttpContextData()
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+        if (httpContext == null)
+        {
+            return new Dictionary<string, string>
+            {
+                {"ipAddress", "unknown"},
+                {"userAgent", "unknown"}
+            };
+        }
+
+        // Priority: Client headers > Proxy headers > Connection info
+        var clientIp = httpContext.Request.Headers["X-Client-IP"].FirstOrDefault()
+                      ?? httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
+                      ?? httpContext.Request.Headers["X-Real-IP"].FirstOrDefault()
+                      ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                      ?? "unknown";
+
+        var userAgent = httpContext.Request.Headers["X-User-Agent"].FirstOrDefault()
+                       ?? httpContext.Request.Headers["User-Agent"].FirstOrDefault()
+                       ?? "unknown";
+
+        return new Dictionary<string, string>
+        {
+            {"ipAddress", clientIp},
+            {"userAgent", userAgent}
+        };
     }
 } 
