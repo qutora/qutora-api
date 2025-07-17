@@ -3,9 +3,8 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
 
 namespace Qutora.Application.Services;

@@ -4,7 +4,6 @@ using Qutora.Shared.DTOs;
 using Qutora.Shared.DTOs.Approval;
 using System.Security.Claims;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 
 namespace Qutora.API.Controllers;
 

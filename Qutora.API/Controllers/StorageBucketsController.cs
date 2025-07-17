@@ -5,9 +5,8 @@ using Qutora.Shared.DTOs.Common;
 using Qutora.Shared.Enums;
 using System.Security.Claims;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Exceptions;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Storage;
+using Qutora.Application.Interfaces.Storage;
+using Qutora.Shared.Exceptions;
 
 namespace Qutora.API.Controllers;
 

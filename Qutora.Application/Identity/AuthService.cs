@@ -5,15 +5,13 @@ using System.Text;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Domain.Entities;
 using Qutora.Domain.Entities.Identity;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Persistence;
 using Qutora.Shared.DTOs.Authentication;
 using Qutora.Shared.DTOs.Common;
 
@@ -22,39 +20,27 @@ namespace Qutora.Application.Identity;
 /// <summary>
 /// Authentication service implementation
 /// </summary>
-public class AuthService : IAuthService
+public class AuthService(
+    UserManager<ApplicationUser> userManager,
+    RoleManager<ApplicationRole> roleManager,
+    SignInManager<ApplicationUser> signInManager,
+    IOptions<JwtSettings> jwtSettings,
+    IMapper mapper,
+    IUnitOfWork unitOfWork,
+    IConfiguration configuration,
+    ITokenBlacklistService tokenBlacklist,
+    IHttpContextAccessor httpContextAccessor)
+    : IAuthService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly JwtSettings _jwtSettings;
-    private readonly IMapper _mapper;
-    private readonly ApplicationDbContext _dbContext;
-    private readonly IConfiguration _configuration;
-    private readonly ITokenBlacklistService _tokenBlacklist;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public AuthService(
-        UserManager<ApplicationUser> userManager,
-        RoleManager<ApplicationRole> roleManager,
-        SignInManager<ApplicationUser> signInManager,
-        IOptions<JwtSettings> jwtSettings,
-        IMapper mapper,
-        ApplicationDbContext dbContext,
-        IConfiguration configuration,
-        ITokenBlacklistService tokenBlacklist,
-        IHttpContextAccessor httpContextAccessor)
-    {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException(nameof(jwtSettings));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _tokenBlacklist = tokenBlacklist ?? throw new ArgumentNullException(nameof(tokenBlacklist));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-    }
+    private readonly UserManager<ApplicationUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly RoleManager<ApplicationRole> _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+    private readonly SignInManager<ApplicationUser> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException(nameof(jwtSettings));
+    private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly ITokenBlacklistService _tokenBlacklist = tokenBlacklist ?? throw new ArgumentNullException(nameof(tokenBlacklist));
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
@@ -168,7 +154,7 @@ public class AuthService : IAuthService
 
                 await _userManager.AddToRoleAsync(adminUser, "Admin");
 
-                var systemSettings = await _dbContext.SystemSettings.SingleOrDefaultAsync(cancellationToken);
+                var systemSettings = await _unitOfWork.SystemSettings.FirstOrDefaultAsync(cancellationToken);
                 if (systemSettings != null)
                 {
                     systemSettings.IsInitialized = true;
@@ -177,11 +163,11 @@ public class AuthService : IAuthService
                     systemSettings.ApplicationName = request.OrganizationName;
                     systemSettings.UpdatedAt = DateTime.UtcNow;
 
-                    _dbContext.SystemSettings.Update(systemSettings);
+                    _unitOfWork.SystemSettings.Update(systemSettings);
                 }
                 else
                 {
-                    _dbContext.SystemSettings.Add(new SystemSettings
+                    await _unitOfWork.SystemSettings.AddAsync(new SystemSettings
                     {
                         IsInitialized = true,
                         InitializedAt = DateTime.UtcNow,
@@ -189,13 +175,13 @@ public class AuthService : IAuthService
                         ApplicationName = request.OrganizationName,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
-                    });
+                    }, cancellationToken);
                 }
 
                 // Create default storage provider and bucket from configuration
                 await CreateDefaultStorageProviderAndBucketAsync(adminUser.Id, cancellationToken);
 
-                await _dbContext.SaveChangesAsync(cancellationToken);
+
 
                 return MessageResponseDto.SuccessResponse("System setup completed successfully.");
             }, cancellationToken);
@@ -211,10 +197,10 @@ public class AuthService : IAuthService
     {
         var response = new AuthResponse();
 
-        try
+        return await ExecuteTransactionalAsync(async () =>
         {
             // Validate refresh token directly from database - not JWT!
-            var refreshToken = await _dbContext.Set<RefreshToken>()
+            var refreshToken = await _unitOfWork.RefreshTokens
                 .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken, cancellationToken);
 
             if (refreshToken == null)
@@ -316,7 +302,7 @@ public class AuthService : IAuthService
             // Mark old refresh token as used
             refreshToken.IsUsed = true;
             refreshToken.ReplacedByToken = newRefreshToken;
-            _dbContext.Update(refreshToken);
+            _unitOfWork.RefreshTokens.Update(refreshToken);
 
             // Create new refresh token
             var newRefreshTokenEntity = new RefreshToken
@@ -329,8 +315,7 @@ public class AuthService : IAuthService
                 CreatedByIp = ipAddress
             };
 
-            await _dbContext.AddAsync(newRefreshTokenEntity, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.RefreshTokens.AddAsync(newRefreshTokenEntity, cancellationToken);
 
             response.Success = true;
             response.Token = token;
@@ -348,20 +333,13 @@ public class AuthService : IAuthService
             };
 
             return response;
-        }
-        catch (Exception ex)
-        {
-            response.Success = false;
-            response.Message = $"An error occurred during token refresh: {ex.Message}";
-            return response;
-        }
+        }, cancellationToken);
     }
 
     public async Task<bool> LogoutAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var refreshTokens = await _dbContext.Set<RefreshToken>()
-            .Where(rt => rt.UserId == userId && !rt.IsRevoked && DateTime.UtcNow < rt.ExpiryDate)
-            .ToListAsync(cancellationToken);
+        var refreshTokens = await _unitOfWork.RefreshTokens
+            .FindAsync(rt => rt.UserId == userId && !rt.IsRevoked && DateTime.UtcNow < rt.ExpiryDate, cancellationToken);
 
         if (!refreshTokens.Any()) return false;
 
@@ -377,8 +355,8 @@ public class AuthService : IAuthService
                 await _tokenBlacklist.AddToBlacklistAsync(token.JwtId, token.ExpiryDate, cancellationToken);
         }
 
-        _dbContext.UpdateRange(refreshTokens);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _unitOfWork.RefreshTokens.UpdateRange(refreshTokens);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _signInManager.SignOutAsync();
         return true;
@@ -488,49 +466,51 @@ public class AuthService : IAuthService
 
     private async Task RemoveOldRefreshTokensAsync(ApplicationUser user, CancellationToken cancellationToken = default)
     {
-        var cutoff = DateTime.UtcNow.AddDays(-_jwtSettings.RefreshTokenExpiryDays);
-
-        var oldTokens = await _dbContext.Set<RefreshToken>()
-            .Where(rt => rt.UserId == user.Id &&
-                         (rt.IsUsed || rt.IsRevoked || rt.ExpiryDate < cutoff))
-            .ToListAsync(cancellationToken);
-
-        if (oldTokens.Any())
+        await _unitOfWork.ExecuteTransactionalAsync(async () =>
         {
-            _dbContext.Set<RefreshToken>().RemoveRange(oldTokens);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
+            var cutoff = DateTime.UtcNow.AddDays(-_jwtSettings.RefreshTokenExpiryDays);
+
+            var oldTokens = await _unitOfWork.RefreshTokens
+                .FindAsync(rt => rt.UserId == user.Id &&
+                             (rt.IsUsed || rt.IsRevoked || rt.ExpiryDate < cutoff), cancellationToken);
+
+            if (oldTokens.Any())
+            {
+                _unitOfWork.RefreshTokens.RemoveRange(oldTokens);
+            }
+        }, cancellationToken);
     }
 
     private async Task RevokeAllUserTokensAsync(string userId, string reason,
         CancellationToken cancellationToken = default)
     {
-        var refreshTokens = await _dbContext.Set<RefreshToken>()
-            .Where(rt => rt.UserId == userId && !rt.IsRevoked)
-            .ToListAsync(cancellationToken);
-
-        if (!refreshTokens.Any())
-            return;
-
-        var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
-
-        foreach (var token in refreshTokens)
+        await _unitOfWork.ExecuteTransactionalAsync(async () =>
         {
-            token.IsRevoked = true;
-            token.RevokedAt = DateTime.UtcNow;
-            token.RevokedByIp = ipAddress;
+            var refreshTokens = await _unitOfWork.RefreshTokens
+                .FindAsync(rt => rt.UserId == userId && !rt.IsRevoked, cancellationToken);
 
-            if (_jwtSettings.TokenBlacklistEnabled && !string.IsNullOrEmpty(token.JwtId))
-                await _tokenBlacklist.AddToBlacklistAsync(token.JwtId, token.ExpiryDate, cancellationToken);
-        }
+            if (!refreshTokens.Any())
+                return;
 
-        _dbContext.UpdateRange(refreshTokens);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
+            foreach (var token in refreshTokens)
+            {
+                token.IsRevoked = true;
+                token.RevokedAt = DateTime.UtcNow;
+                token.RevokedByIp = ipAddress;
+
+                if (_jwtSettings.TokenBlacklistEnabled && !string.IsNullOrEmpty(token.JwtId))
+                    await _tokenBlacklist.AddToBlacklistAsync(token.JwtId, token.ExpiryDate, cancellationToken);
+            }
+
+            _unitOfWork.RefreshTokens.UpdateRange(refreshTokens);
+        }, cancellationToken);
     }
 
     public async Task<bool> IsSystemInitializedAsync(CancellationToken cancellationToken = default)
     {
-        var systemSettings = await _dbContext.SystemSettings.FirstOrDefaultAsync(cancellationToken);
+        var systemSettings = await _unitOfWork.SystemSettings.FirstOrDefaultAsync(cancellationToken);
         return systemSettings?.IsInitialized ?? false;
     }
 
@@ -832,26 +812,7 @@ public class AuthService : IAuthService
     private async Task<T> ExecuteTransactionalAsync<T>(Func<Task<T>> action,
         CancellationToken cancellationToken = default)
     {
-        var strategy = _dbContext.Database.CreateExecutionStrategy();
-
-        return await strategy.ExecuteAsync(async () =>
-        {
-            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-            try
-            {
-                var result = await action();
-
-                await transaction.CommitAsync(cancellationToken);
-
-                return result;
-            }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
-        });
+        return await _unitOfWork.ExecuteTransactionalAsync(action, cancellationToken);
     }
 
     /// <summary>
@@ -897,7 +858,7 @@ public class AuthService : IAuthService
             CreatedBy = createdByUserId
         };
 
-        await _dbContext.StorageProviders.AddAsync(storageProvider, cancellationToken);
+        await _unitOfWork.StorageProviders.AddAsync(storageProvider, cancellationToken);
 
         // Create default storage bucket
         var defaultBucketId = Guid.Parse("00000000-0000-0000-0001-000000000001");
@@ -915,7 +876,7 @@ public class AuthService : IAuthService
             CreatedBy = createdByUserId
         };
 
-        await _dbContext.StorageBuckets.AddAsync(storageBucket, cancellationToken);
+        await _unitOfWork.StorageBuckets.AddAsync(storageBucket, cancellationToken);
 
         // Create physical directories
         try

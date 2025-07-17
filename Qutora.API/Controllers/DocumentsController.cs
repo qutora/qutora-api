@@ -6,7 +6,6 @@ using Qutora.Shared.DTOs.DocumentOrchestration;
 using Qutora.Shared.Enums;
 using System.Security.Claims;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 
 namespace Qutora.API.Controllers;
 

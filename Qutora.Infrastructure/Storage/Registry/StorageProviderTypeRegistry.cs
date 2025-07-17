@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Qutora.Infrastructure.Interfaces.Storage;
+using Qutora.Application.Interfaces.Storage;
 
 namespace Qutora.Infrastructure.Storage.Registry;
 

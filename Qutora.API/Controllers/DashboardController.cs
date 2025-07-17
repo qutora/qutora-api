@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 
 namespace Qutora.API.Controllers
 {

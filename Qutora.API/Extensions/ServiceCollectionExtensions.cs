@@ -14,7 +14,6 @@ using Qutora.Domain.Entities.Identity;
 using Qutora.Infrastructure.Persistence.Repositories;
 using Qutora.Infrastructure.Persistence.UnitOfWork;
 using Qutora.Infrastructure.Persistence.Transactions;
-using Qutora.Infrastructure.Security.Authorization;
 using Qutora.Infrastructure.Services;
 using Qutora.Infrastructure.Storage.Models;
 using Qutora.Infrastructure.Storage.Providers;
@@ -22,15 +21,16 @@ using MapsterMapper;
 using Qutora.Application.Extensions;
 using Qutora.Application.Identity;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Repositories;
+using Qutora.Application.Interfaces.Storage;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Application.Security;
 using Qutora.Application.Services;
 using Qutora.Application.Startup;
+using Qutora.Infrastructure.Extensions;
 using Qutora.Infrastructure.Storage;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Repositories;
-using Qutora.Infrastructure.Interfaces.Storage;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Infrastructure.Persistence;
+using AuthorizationPolicy = Qutora.Shared.Models.AuthorizationPolicy;
 
 namespace Qutora.API.Extensions;
 
@@ -127,6 +127,9 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IEmailSettingsRepository, EmailSettingsRepository>();
         services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
+
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ISystemSettingsRepository, SystemSettingsRepository>();
 
         return services;
     }

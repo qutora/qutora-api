@@ -17,16 +17,4 @@ namespace Qutora.Shared.DTOs.Dashboard
         public decimal AvgViewsPerShare { get; set; }
         public List<TopSharedDocumentDto> TopSharedDocuments { get; set; } = new();
     }
-
-    /// <summary>
-    /// Top shared document data transfer object
-    /// </summary>
-    public class TopSharedDocumentDto
-    {
-        public string DocumentId { get; set; } = string.Empty;
-        public string DocumentName { get; set; } = string.Empty;
-        public int ViewCount { get; set; }
-        public int ShareCount { get; set; }
-        public DateTime LastViewed { get; set; }
-    }
 } 

@@ -4,7 +4,6 @@ using Qutora.Application.Models.ApiKeys;
 using AuthDTOs = Qutora.Shared.DTOs.Authentication;
 using System.Security.Claims;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 
 namespace Qutora.API.Controllers;
 
@@ -142,7 +141,7 @@ public class ApiKeysController(
 
             return CreatedAtAction(nameof(GetApiKey), new { id = apiKey.Id }, response);
         }
-        catch (UnauthorizedAccessException ex)
+        catch (UnauthorizedAccessException)
         {
             return Forbid();
         }
@@ -208,7 +207,7 @@ public class ApiKeysController(
 
             return Ok(response);
         }
-        catch (UnauthorizedAccessException ex)
+        catch (UnauthorizedAccessException)
         {
             return Forbid();
         }

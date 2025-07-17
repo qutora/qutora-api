@@ -1,9 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Repositories;
+using Qutora.Application.Interfaces.Storage;
+using Qutora.Application.Security;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Interfaces.Repositories;
-using Qutora.Infrastructure.Interfaces.Storage;
-using Qutora.Infrastructure.Security;
 using Qutora.Infrastructure.Storage.Exceptions;
 using Qutora.Infrastructure.Storage.Models;
 using Qutora.Infrastructure.Storage.Registry;

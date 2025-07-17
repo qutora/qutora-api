@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Database.Abstractions;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
+
 using Qutora.Infrastructure.Persistence.Transactions;
 
 namespace Qutora.Infrastructure.Persistence.UnitOfWork;

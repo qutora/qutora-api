@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Qutora.Infrastructure.Interfaces.Storage;
+using Qutora.Application.Interfaces.Storage;
 using Qutora.Infrastructure.Storage.Models;
 
 namespace Qutora.Infrastructure.Storage.Registry;
@@ -7,24 +7,16 @@ namespace Qutora.Infrastructure.Storage.Registry;
 /// <summary>
 /// Factory class that creates Storage Provider objects.
 /// </summary>
-public class StorageProviderFactory
+public class StorageProviderFactory(
+    IEnumerable<IProviderCreator> creators,
+    IServiceProvider serviceProvider,
+    ILogger<StorageProviderFactory> logger,
+    IStorageProviderTypeRegistry registry)
 {
-    private readonly IEnumerable<IProviderCreator> _creators;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<StorageProviderFactory> _logger;
-    private readonly IStorageProviderTypeRegistry _registry;
-
-    public StorageProviderFactory(
-        IEnumerable<IProviderCreator> creators,
-        IServiceProvider serviceProvider,
-        ILogger<StorageProviderFactory> logger,
-        IStorageProviderTypeRegistry registry)
-    {
-        _creators = creators ?? throw new ArgumentNullException(nameof(creators));
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-    }
+    private readonly IEnumerable<IProviderCreator> _creators = creators ?? throw new ArgumentNullException(nameof(creators));
+    private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    private readonly ILogger<StorageProviderFactory> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IStorageProviderTypeRegistry _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
     /// <summary>
     /// Creates a provider from IProviderConfig object

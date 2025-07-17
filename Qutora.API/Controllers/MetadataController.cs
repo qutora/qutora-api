@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MapsterMapper;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 using Qutora.Shared.DTOs;
 
 namespace Qutora.API.Controllers;

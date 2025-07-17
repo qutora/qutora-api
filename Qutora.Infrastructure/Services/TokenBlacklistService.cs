@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using Qutora.Infrastructure.Interfaces;
+using Qutora.Application.Interfaces;
 
 namespace Qutora.Infrastructure.Services;
 

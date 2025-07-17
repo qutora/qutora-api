@@ -4,7 +4,6 @@ using Qutora.Shared.DTOs;
 using System.Security.Claims;
 using System.Text.Json;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 using Qutora.Shared.DTOs.Common;
 
 namespace Qutora.API.Controllers;

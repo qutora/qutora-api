@@ -1,4 +1,5 @@
-using Qutora.Infrastructure.Interfaces;
+
+using Qutora.Application.Interfaces;
 
 namespace Qutora.Infrastructure.Services;
 

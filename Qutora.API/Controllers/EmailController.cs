@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Qutora.Infrastructure.Interfaces;
+using Qutora.Application.Interfaces;
 using Qutora.Shared.DTOs.Email;
 using Qutora.Shared.DTOs.Common;
 

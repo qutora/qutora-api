@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Repositories;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Database.Abstractions;
-using Qutora.Infrastructure.Interfaces.Repositories;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
+
+
 using Qutora.Infrastructure.Persistence.Transactions;
 
 namespace Qutora.Infrastructure.Persistence.UnitOfWork;
@@ -64,6 +67,10 @@ public class UnitOfWork(
     public IEmailSettingsRepository EmailSettings => _unitOfWork.EmailSettings;
 
     public IEmailTemplateRepository EmailTemplates => _unitOfWork.EmailTemplates;
+
+    public IRefreshTokenRepository RefreshTokens => _unitOfWork.RefreshTokens;
+
+    public ISystemSettingsRepository SystemSettings => _unitOfWork.SystemSettings;
 
     /// <summary>
     /// Returns the database execution strategy for use in transaction handling

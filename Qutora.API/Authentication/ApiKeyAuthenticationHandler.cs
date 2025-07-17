@@ -4,8 +4,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Qutora.Application.Identity;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
+using Qutora.Application.Interfaces.UnitOfWork;
 
 namespace Qutora.API.Authentication;
 
