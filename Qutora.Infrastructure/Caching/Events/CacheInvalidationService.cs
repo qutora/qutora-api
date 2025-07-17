@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
 using Qutora.Infrastructure.Caching.Services;
 
 namespace Qutora.Infrastructure.Caching.Events;
@@ -6,7 +7,7 @@ namespace Qutora.Infrastructure.Caching.Events;
 /// <summary>
 /// Service responsible for handling cache invalidation events
 /// </summary>
-public class CacheInvalidationService
+public class CacheInvalidationService : ICacheInvalidationService
 {
     private readonly IApiKeyCacheService _cacheService;
     private readonly ILogger<CacheInvalidationService> _logger;

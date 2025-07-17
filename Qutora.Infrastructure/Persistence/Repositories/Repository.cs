@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
-using Qutora.Infrastructure.Interfaces.Repositories;
+using Qutora.Application.Interfaces.Repositories;
+
 
 namespace Qutora.Infrastructure.Persistence.Repositories;
 

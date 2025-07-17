@@ -3,7 +3,7 @@ using Qutora.Domain.Entities;
 using Qutora.Shared.DTOs;
 using System.Security.Cryptography;
 using System.Text;
-using Qutora.Infrastructure.Interfaces.Storage;
+using Qutora.Application.Interfaces.Storage;
 using Qutora.Shared.Enums;
 
 namespace Qutora.Infrastructure.Storage.Providers;

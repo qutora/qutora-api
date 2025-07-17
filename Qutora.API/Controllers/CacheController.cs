@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Qutora.Application.Interfaces;
 using Qutora.Infrastructure.Caching.Events;
 using Qutora.Infrastructure.Caching.Services;
 

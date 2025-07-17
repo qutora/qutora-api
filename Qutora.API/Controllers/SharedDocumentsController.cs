@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 using Qutora.Shared.DTOs;
 
 namespace Qutora.API.Controllers;

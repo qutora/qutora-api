@@ -1,5 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
-using Qutora.Infrastructure.Interfaces;
+using Qutora.Application.Interfaces;
 
 namespace Qutora.API.Middleware;
 

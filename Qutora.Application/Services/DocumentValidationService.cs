@@ -2,8 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs.DocumentOrchestration;
 
 namespace Qutora.Application.Services;

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Qutora.Shared.DTOs;
 using System.Security.Claims;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
 
 namespace Qutora.API.Controllers;
 

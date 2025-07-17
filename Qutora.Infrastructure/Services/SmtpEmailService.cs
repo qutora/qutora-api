@@ -4,13 +4,13 @@ using Mapster;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Repositories;
+using Qutora.Application.Interfaces.UnitOfWork;
+using Qutora.Application.Security;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Repositories;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
 using Qutora.Shared.DTOs.Email;
-using Qutora.Infrastructure.Security;
 using Qutora.Shared.Enums;
 using Qutora.Shared.Models;
 

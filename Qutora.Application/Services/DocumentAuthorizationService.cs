@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Caching.Services;
-using Qutora.Infrastructure.Interfaces;
 using Qutora.Shared.DTOs;
 using Qutora.Shared.DTOs.DocumentOrchestration;
 using Qutora.Shared.Enums;

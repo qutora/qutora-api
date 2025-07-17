@@ -2,12 +2,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using Qutora.Application.Interfaces;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Exceptions;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Storage;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
 using System.Security.Claims;
+using Qutora.Application.Interfaces.Storage;
+using Qutora.Application.Interfaces.UnitOfWork;
+using Qutora.Shared.Exceptions;
 
 namespace Qutora.Application.Services;
 

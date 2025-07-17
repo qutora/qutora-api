@@ -2,19 +2,20 @@ using System.Net.Mime;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Repositories;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Database.Abstractions;
-using Qutora.Infrastructure.Exceptions;
-using Qutora.Infrastructure.Interfaces.Repositories;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Infrastructure.Persistence.Repositories;
 using Qutora.Infrastructure.Persistence.Transactions;
+using Qutora.Shared.Exceptions;
 
 namespace Qutora.Infrastructure.Persistence.UnitOfWork;
 
 /// <summary>
 /// DbProvider-specific UnitOfWork implementation
 /// </summary>
-public class DbProviderUnitOfWork(
+public sealed class DbProviderUnitOfWork(
     ApplicationDbContext context,
     IDbProvider dbProvider,
     ILoggerFactory loggerFactory,
@@ -53,6 +54,8 @@ public class DbProviderUnitOfWork(
     private IApprovalHistoryRepository? _approvalHistoryRepository;
     private IEmailSettingsRepository? _emailSettingsRepository;
     private IEmailTemplateRepository? _emailTemplateRepository;
+    private IRefreshTokenRepository? _refreshTokenRepository;
+    private ISystemSettingsRepository? _systemSettingsRepository;
 
     public IDbProvider DbProvider => _dbProvider;
 
@@ -115,6 +118,12 @@ public class DbProviderUnitOfWork(
 
     public IEmailTemplateRepository EmailTemplates => _emailTemplateRepository ??=
         new EmailTemplateRepository(_context, _loggerFactory.CreateLogger<EmailTemplateRepository>());
+
+    public IRefreshTokenRepository RefreshTokens => _refreshTokenRepository ??=
+        new RefreshTokenRepository(_context,_loggerFactory.CreateLogger<RefreshTokenRepository>());
+
+    public ISystemSettingsRepository SystemSettings => _systemSettingsRepository ??=
+        new SystemSettingsRepository(_context,_loggerFactory.CreateLogger<SystemSettingsRepository>());
 
 
     /// <summary>
@@ -256,7 +265,7 @@ public class DbProviderUnitOfWork(
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposed && disposing)
         {

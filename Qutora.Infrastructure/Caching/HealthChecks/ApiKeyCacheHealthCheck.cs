@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
 using Qutora.Infrastructure.Caching.Services;
-using Qutora.Infrastructure.Caching.Models;
+using Qutora.Shared.Models;
 
 namespace Qutora.Infrastructure.Caching.HealthChecks;
 

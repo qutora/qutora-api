@@ -5,6 +5,8 @@ using Qutora.Shared.DTOs;
 using Qutora.Shared.Models;
 using Qutora.API.Extensions;
 using Qutora.API.Middleware;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Security;
 using Qutora.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);

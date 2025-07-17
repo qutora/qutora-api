@@ -3,8 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using Qutora.Infrastructure.Caching.Models;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
+using Qutora.Shared.Models;
+
 
 namespace Qutora.Infrastructure.Caching.Services;
 
@@ -156,49 +158,49 @@ public class ApiKeyCacheService : IApiKeyCacheService
         }
     }
 
-    public async Task<CachedApiKey?> GetApiKeyByKeyAsync(string key)
+    public Task<CachedApiKey?> GetApiKeyByKeyAsync(string key)
     {
         var cacheKey = APIKEY_BY_KEY_PREFIX + key;
         
         if (_cache.TryGetValue(cacheKey, out CachedApiKey? cachedApiKey))
         {
             RecordCacheHit();
-            return cachedApiKey;
+            return Task.FromResult<CachedApiKey?>(cachedApiKey);
         }
 
         RecordCacheMiss();
-        return null;
+        return Task.FromResult<CachedApiKey?>(null);
     }
 
-    public async Task<CachedApiKey?> GetApiKeyByIdAsync(Guid id)
+    public Task<CachedApiKey?> GetApiKeyByIdAsync(Guid id)
     {
         var cacheKey = APIKEY_BY_ID_PREFIX + id;
         
         if (_cache.TryGetValue(cacheKey, out CachedApiKey? cachedApiKey))
         {
             RecordCacheHit();
-            return cachedApiKey;
+            return Task.FromResult<CachedApiKey?>(cachedApiKey);
         }
 
         RecordCacheMiss();
-        return null;
+        return Task.FromResult<CachedApiKey?>(null);
     }
 
-    public async Task<CachedPermission?> GetPermissionAsync(Guid apiKeyId, Guid bucketId)
+    public Task<CachedPermission?> GetPermissionAsync(Guid apiKeyId, Guid bucketId)
     {
         var cacheKey = $"{PERMISSION_PREFIX}{apiKeyId}:{bucketId}";
         
         if (_cache.TryGetValue(cacheKey, out CachedPermission? permission))
         {
             RecordCacheHit();
-            return permission;
+            return Task.FromResult<CachedPermission?>(permission);
         }
 
         RecordCacheMiss();
-        return null;
+        return Task.FromResult<CachedPermission?>(null);
     }
 
-    public async Task<List<CachedPermission>> GetPermissionsByApiKeyAsync(Guid apiKeyId)
+    public Task<List<CachedPermission>> GetPermissionsByApiKeyAsync(Guid apiKeyId)
     {
         var permissions = new List<CachedPermission>();
         var prefix = $"{PERMISSION_PREFIX}{apiKeyId}:";
@@ -206,21 +208,21 @@ public class ApiKeyCacheService : IApiKeyCacheService
         // Note: IMemoryCache limitation - full permission list requires separate tracking
         
         RecordCacheHit(); // Assume we find something
-        return permissions;
+        return Task.FromResult(permissions);
     }
 
-    public async Task<CachedBucket?> GetBucketAsync(Guid bucketId)
+    public Task<CachedBucket?> GetBucketAsync(Guid bucketId)
     {
         var cacheKey = BUCKET_PREFIX + bucketId;
         
         if (_cache.TryGetValue(cacheKey, out CachedBucket? bucket))
         {
             RecordCacheHit();
-            return bucket;
+            return Task.FromResult<CachedBucket?>(bucket);
         }
 
         RecordCacheMiss();
-        return null;
+        return Task.FromResult<CachedBucket?>(null);
     }
 
     public async Task<List<Guid>?> GetAllowedProviderIdsAsync(Guid apiKeyId)
@@ -319,7 +321,7 @@ public class ApiKeyCacheService : IApiKeyCacheService
         _bucketMap.TryRemove(bucketId, out _);
     }
 
-    public async Task<CacheStatistics> GetStatisticsAsync()
+    public Task<CacheStatistics> GetStatisticsAsync()
     {
         var now = DateTime.UtcNow;
         var memoryUsage = EstimateMemoryUsage();
@@ -348,7 +350,7 @@ public class ApiKeyCacheService : IApiKeyCacheService
             stats.HealthWarnings.Add($"Low cache hit ratio: {stats.HitRatio:F1}%");
         }
 
-        return stats;
+        return Task.FromResult(stats);
     }
 
     public void RecordCacheHit()

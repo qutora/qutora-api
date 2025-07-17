@@ -2,8 +2,8 @@ using System.Text.Json;
 using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
 using Qutora.Shared.Helpers;
 

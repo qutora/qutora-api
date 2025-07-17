@@ -2,12 +2,11 @@ using System.Text.Json;
 using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Exceptions;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
 using Qutora.Shared.Enums;
+using Qutora.Shared.Exceptions;
 
 namespace Qutora.Application.Services;
 

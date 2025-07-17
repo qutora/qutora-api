@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Qutora.Application.Interfaces;
 
 namespace Qutora.Infrastructure.Persistence.Transactions;
 

@@ -1,7 +1,7 @@
 using Qutora.Domain.Entities;
 using Microsoft.Extensions.Logging;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Storage;
+using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Storage;
 using Qutora.Shared.DTOs.Common;
 
 namespace Qutora.Infrastructure.Storage.Providers;

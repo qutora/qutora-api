@@ -13,36 +13,3 @@ public class AuditStatisticsDto
     public List<TopUserDto> TopUsers { get; set; } = new();
     public List<TopActivityDto> TopActivities { get; set; } = new();
 }
-
-public class EventTypeBreakdownDto
-{
-    public string EventType { get; set; } = string.Empty;
-    public int Count { get; set; }
-}
-
-public class EntityTypeBreakdownDto
-{
-    public string EntityType { get; set; } = string.Empty;
-    public int Count { get; set; }
-}
-
-public class DailyActivityDto
-{
-    public DateTime Date { get; set; }
-    public int Count { get; set; }
-}
-
-public class TopUserDto
-{
-    public string UserId { get; set; } = string.Empty;
-    public int Count { get; set; }
-}
-
-public class TopActivityDto
-{
-    public int Rank { get; set; }
-    public string EventType { get; set; } = string.Empty;
-    public int Count { get; set; }
-    public double Percentage { get; set; }
-    public string Trend { get; set; } = "up";
-} 

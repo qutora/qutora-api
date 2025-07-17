@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
+using Qutora.Application.Interfaces.Storage;
 using Qutora.Domain.Entities;
-using Qutora.Infrastructure.Interfaces.Storage;
 using Qutora.Shared.DTOs;
 using Qutora.Shared.Enums;
 

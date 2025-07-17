@@ -2,9 +2,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Domain.Entities.Identity;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 
 namespace Qutora.Application.Services;
 

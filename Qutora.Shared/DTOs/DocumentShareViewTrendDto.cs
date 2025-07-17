@@ -6,10 +6,3 @@ public class DocumentShareViewTrendDto
     public int Year { get; set; }
     public int ViewCount { get; set; }
 }
-
-public class DocumentShareTrendDataDto
-{
-    public List<DocumentShareViewTrendDto> MonthlyViews { get; set; } = new();
-    public int TotalViews { get; set; }
-    public double AverageViewsPerMonth { get; set; }
-} 

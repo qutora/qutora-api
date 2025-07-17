@@ -6,9 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Qutora.Application.Interfaces;
 using Qutora.Domain.Entities.Identity;
-using Qutora.Infrastructure.Security.Options;
 using Qutora.Shared.DTOs;
 using Qutora.Shared.DTOs.Authentication;
+using Qutora.Shared.Models;
 
 namespace Qutora.Application.Services;
 

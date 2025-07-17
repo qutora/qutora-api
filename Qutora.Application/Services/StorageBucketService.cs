@@ -5,11 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Qutora.Application.Interfaces;
+using Qutora.Application.Interfaces.Storage;
+using Qutora.Application.Interfaces.UnitOfWork;
 using Qutora.Domain.Entities;
 using Qutora.Domain.Entities.Identity;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Storage;
-using Qutora.Infrastructure.Interfaces.UnitOfWork;
 using Qutora.Shared.DTOs;
 
 namespace Qutora.Application.Services;
@@ -1038,18 +1037,4 @@ public class StorageBucketService(
     }
 
     #endregion
-}
-
-/// <summary>
-/// Bucket provider configuration for each provider type
-/// </summary>
-internal class BucketProviderConfig
-{
-    public int MinBucketNameLength { get; set; }
-    public int MaxBucketNameLength { get; set; }
-    public required string AllowedCharactersPattern { get; set; }
-    public bool AllowNestedBuckets { get; set; }
-    public bool RequiresPermissionCheck { get; set; }
-    public bool AllowForceDelete { get; set; }
-    public required Func<string, (bool isValid, string message)> ValidateBucketName { get; set; }
 }

@@ -169,12 +169,3 @@ public static class DataProtectionExtensions
         }
     }
 }
-
-public enum KeySourceType
-{
-    InternalGeneration,
-    ExternalVolume,
-    ReadOnlyMount
-}
-
-public record KeySourceInfo(KeySourceType Type, string Reason); 

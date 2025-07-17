@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Interfaces;
-using Qutora.Infrastructure.Interfaces.Storage;
+using Qutora.Application.Interfaces.Storage;
 
 namespace Qutora.API.Controllers;
 

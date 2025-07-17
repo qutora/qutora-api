@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Qutora.Application.Interfaces;
-using Qutora.Infrastructure.Security.Authorization;
+using Qutora.Shared.Models;
 
 namespace Qutora.Application.Security;
 
