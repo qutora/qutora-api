@@ -31,7 +31,7 @@ public static class CacheServiceExtensions
         services.AddSingleton<IApiKeyCacheService, ApiKeyCacheService>();
 
         // Cache event handler
-        services.AddScoped<CacheInvalidationService>();
+        services.AddScoped<ICacheInvalidationService, CacheInvalidationService>();
 
         // Background refresh service
         services.AddHostedService<ApiKeyCacheRefreshService>();
