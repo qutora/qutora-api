@@ -322,8 +322,12 @@ public class SftpProvider : BaseStorageProvider, IStorageProviderAdapter
                 if (!string.IsNullOrEmpty(directoryPath) && directoryPath != "/")
                     CreateDirectoryRecursive(client, directoryPath);
 
-                using var fileStream = client.Create(remotePath);
-                content.CopyTo(fileStream);
+                // Ensure stream is at the beginning
+                if (content.CanSeek)
+                    content.Position = 0;
+
+                // Use UploadFile method for better reliability
+                client.UploadFile(content, remotePath);
 
                 client.Disconnect();
             });
@@ -371,7 +375,7 @@ public class SftpProvider : BaseStorageProvider, IStorageProviderAdapter
                 remotePath = Path.Combine(_options.RootPath, finalObjectKey).Replace('\\', '/');
             }
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 using var client = CreateSftpClient();
                 client.Connect();
@@ -380,8 +384,12 @@ public class SftpProvider : BaseStorageProvider, IStorageProviderAdapter
                 if (!string.IsNullOrEmpty(directoryPath) && directoryPath != "/")
                     CreateDirectoryRecursive(client, directoryPath);
 
-                using var fileStream = client.Create(remotePath);
-                content.CopyTo(fileStream);
+                // Ensure stream is at the beginning
+                if (content.CanSeek)
+                    content.Position = 0;
+
+                // Use UploadFile method for better reliability
+                client.UploadFile(content, remotePath);
 
                 client.Disconnect();
             }, cancellationToken);
@@ -423,13 +431,12 @@ public class SftpProvider : BaseStorageProvider, IStorageProviderAdapter
     {
         try
         {
-            var normalizedPath = objectKey.Replace('/', Path.DirectorySeparatorChar);
-            var remotePath = Path.Combine(_options.RootPath, normalizedPath)
+            var remotePath = Path.Combine(_options.RootPath, objectKey)
                 .Replace('\\', '/');
 
             var memoryStream = new MemoryStream();
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 using var client = CreateSftpClient();
                 client.Connect();
@@ -440,7 +447,7 @@ public class SftpProvider : BaseStorageProvider, IStorageProviderAdapter
                 if (!client.GetAttributes(remotePath).IsDirectory)
                 {
                     using var sourceStream = client.OpenRead(remotePath);
-                    sourceStream.CopyTo(memoryStream);
+                    await sourceStream.CopyToAsync(memoryStream, 81920); // 80KB buffer
                 }
                 else
                 {
