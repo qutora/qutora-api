@@ -18,7 +18,6 @@ using Qutora.Infrastructure.Services;
 using Qutora.Infrastructure.Storage.Models;
 using Qutora.Infrastructure.Storage.Providers;
 using MapsterMapper;
-using Qutora.Application.Extensions;
 using Qutora.Application.Identity;
 using Qutora.Application.Interfaces;
 using Qutora.Application.Interfaces.Repositories;

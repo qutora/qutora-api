@@ -158,9 +158,10 @@ public class DocumentsController(
     }
 
     [HttpPost]
+    [Consumes("multipart/form-data")]
     [Authorize(Policy = "Document.Create")]
     public async Task<IActionResult> CreateDocument(
-        [FromForm] IFormFile file,
+        IFormFile file,
         [FromForm] string name,
         [FromForm] Guid? categoryId = null,
         [FromQuery] Guid? providerId = null,
@@ -440,8 +441,9 @@ public class DocumentsController(
     /// <param name="changeDescription">Change description (optional)</param>
     /// <returns>Created version information</returns>
     [HttpPost("{id}/versions")]
+    [Consumes("multipart/form-data")]
     [Authorize(Policy = "Document.Update")]
-    public async Task<ActionResult<DocumentVersionDto>> UploadNewVersion(Guid id, [FromForm] IFormFile file,
+    public async Task<ActionResult<DocumentVersionDto>> UploadNewVersion(Guid id, IFormFile file,
         [FromForm] string? changeDescription)
     {
         try
