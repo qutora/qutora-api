@@ -1,0 +1,147 @@
+# =============================================================================
+# Qutora Document Management System - SQL Server Express Example
+# =============================================================================
+# This setup is intended for development and testing purposes
+# 
+# Quick Start:
+#   1. Copy env.sqlserver.example to .env and configure your settings
+#   2. Run: docker-compose -f docker-compose.sqlserver.yml up -d
+#   3. Access API: http://localhost:8080
+#   4. Access Swagger: http://localhost:8080/swagger
+#   5. SQL Server: localhost:1433
+#
+# NOTE: For testing and development use only
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # SQL Server Express
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: qutora-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+      MSSQL_PID: Express
+      MSSQL_TCP_PORT: 1433
+    ports:
+      - "${SQLSERVER_PORT}:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./init-sqlserver.sh:/init-sqlserver.sh:ro
+    networks:
+      - qutora-network
+    command: /bin/bash /init-sqlserver.sh
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -C -d QutoraDB -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  # Qutora API Application
+  qutora-api:
+    image: qutora/qutora-api:latest
+    container_name: qutora-api
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      # =============================================================================
+      # APPLICATION SETTINGS
+      # =============================================================================
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: http://+:8080
+      TZ: ${TZ}
+      
+      # =============================================================================
+      # DATABASE CONFIGURATION
+      # =============================================================================
+      Database__Provider: SqlServer
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=${SQLSERVER_DB};User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;Encrypt=False;Persist Security Info=False;Connection Timeout=30;"
+      
+      # =============================================================================
+      # JWT AUTHENTICATION
+      # =============================================================================
+      Jwt__Key: ${JWT_SECRET_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__ExpiryInMinutes: ${JWT_EXPIRY_MINUTES}
+      
+      # =============================================================================
+      # CORS CONFIGURATION
+      # =============================================================================
+      AllowedOrigins__0: ${ALLOWED_ORIGIN_0}
+      AllowedOrigins__1: ${ALLOWED_ORIGIN_1}
+      AllowedOrigins__2: ${ALLOWED_ORIGIN_2}
+      
+      # =============================================================================
+      # STORAGE CONFIGURATION
+      # =============================================================================
+      Storage__DefaultProvider: ${STORAGE_PROVIDER}
+      Storage__FileSystem__BasePath: /app/data
+      Storage__DefaultProvider__RootPath: ${STORAGE_ROOT_PATH}
+      Storage__DefaultBucket__Path: ${STORAGE_DEFAULT_BUCKET}
+      
+      # =============================================================================
+      # LOGGING CONFIGURATION
+      # =============================================================================
+      Logging__LogLevel__Default: ${LOG_LEVEL}
+      Logging__LogLevel__Microsoft: Warning
+      Logging__LogLevel__Microsoft.Hosting.Lifetime: Information
+      
+    ports:
+      - "${API_PORT}:8080"
+    volumes:
+      # CRITICAL: Persistent storage for encryption keys
+      # Without this volume, encrypted data will be lost on container restart!
+      - qutora_keys:/app/keys
+      # Document storage
+      - qutora_data:/app/data
+      # Application logs
+      - qutora_logs:/app/logs
+    networks:
+      - qutora-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/auth/system-status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+# =============================================================================
+# DOCKER VOLUMES
+# =============================================================================
+volumes:
+  # SQL Server database data
+  sqlserver_data:
+    driver: local
+    name: qutora_sqlserver_data
+  
+  # Qutora encryption keys (CRITICAL - DO NOT DELETE!)
+  qutora_keys:
+    driver: local
+    name: qutora_keys
+  
+  # Document storage
+  qutora_data:
+    driver: local
+    name: qutora_data
+  
+  # Application logs
+  qutora_logs:
+    driver: local
+    name: qutora_logs
+
+# =============================================================================
+# DOCKER NETWORKS
+# =============================================================================
+networks:
+  qutora-network:
+    driver: bridge
+    name: qutora-network
+
+

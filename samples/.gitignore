@@ -1,0 +1,24 @@
+# Environment files
+
+# Backup files
+*.sql
+*.tar.gz
+*.zip
+backup_*
+keys_backup_*
+data_backup_*
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
