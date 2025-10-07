@@ -44,7 +44,7 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
 ```
 
-## 🔄 Release Process
+##  Release Process
 
 ### Triggering Releases
 
@@ -97,7 +97,7 @@ docker-compose -f docker-compose.test.yml up --abort-on-container-exit
 ./docker-build.sh v1.0.0-dev true
 ```
 
-## 📝 Code Style
+##  Code Style
 
 ### .NET Conventions
 - Follow [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
@@ -114,7 +114,7 @@ Qutora.Infrastructure/ # Implementations
 Qutora.Shared/       # DTOs and common models
 ```
 
-## 🐳 Docker Guidelines
+##  Docker Guidelines
 
 ### Dockerfile Best Practices
 - Use multi-stage builds
@@ -129,7 +129,7 @@ Qutora.Shared/       # DTOs and common models
 - Health checks for services
 - Resource limits
 
-## 📖 Documentation
+##  Documentation
 
 ### Code Documentation
 - XML documentation for public APIs
@@ -141,7 +141,7 @@ Qutora.Shared/       # DTOs and common models
 - Include example requests/responses
 - Document error codes
 
-## 🔒 Security
+##  Security
 
 ### Reporting Security Issues
 - **DO NOT** open public issues for security vulnerabilities
@@ -154,7 +154,7 @@ Qutora.Shared/       # DTOs and common models
 - Validate all user inputs
 - Follow OWASP security practices
 
-## 📊 Pull Request Process
+##  Pull Request Process
 
 ### Before Submitting
 - [ ] Code builds without errors
@@ -192,7 +192,7 @@ Brief description of changes
 3. **Testing**: Manual testing if needed
 4. **Merge**: Squash and merge preferred
 
-## 🏷️ Commit Message Format
+##  Commit Message Format
 
 ### Standard Format
 ```
@@ -219,7 +219,7 @@ test(unit): Add category service tests
 - `[preview]`: Create preview release
 - `[breaking]`: Breaking change
 
-## 🤝 Community
+##  Community
 
 ### Code of Conduct
 - Be respectful and inclusive
@@ -233,10 +233,6 @@ test(unit): Add category service tests
 - **Discord**: [Community Discord link]
 - **Email**: [SUPPORT_EMAIL]
 
-## 📄 License
+##  License
 
 By contributing to Qutora, you agree that your contributions will be licensed under the [MIT License](LICENSE).
-
----
-
-**Thank you for contributing to Qutora! 🚀** 
