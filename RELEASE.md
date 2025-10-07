@@ -1,14 +1,14 @@
-# 🚀 Release Guide
+# Release Guide
 
 This project uses an automated GitHub Actions workflow to build and publish Docker images using **semantic versioning**
 
-## 🔧 How It Works
+## How It Works
 
 - Triggered on pushes to the `main` branch.
 - Requires `[release]` in the commit message or pull request title.
 - Version bump is based on tags in the message (default is patch).
 
-## 🔼 Version Bump Keywords
+## Version Bump Keywords
 
 | Keyword       | Bump Type | Example Version Change |
 |---------------|-----------|------------------------|
@@ -18,7 +18,7 @@ This project uses an automated GitHub Actions workflow to build and publish Dock
 
 If no keyword is given, a patch version is created.
 
-## ✅ Release Examples
+## Release Examples
 
 ### Patch release:
 ```bash
@@ -40,7 +40,7 @@ Then push to main:
 git push origin main
 ```
 
-## 📦 What It Does
+## What It Does
 
 When triggered:
 
@@ -52,14 +52,14 @@ When triggered:
   - `docker.io/qutora/qutora-api:latest`
 - Creates a GitHub release with notes.
 
-## 🔐 Required Secrets
+## Required Secrets
 
 Set these secrets in your GitHub repository:
 
 - `DOCKER_USERNAME`
 - `DOCKER_PASSWORD`
 
-## ⏭️ Skipped Builds
+## Skipped Builds
 
 If `[release]` is not in the commit or PR title, the workflow is skipped.
 
