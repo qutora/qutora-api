@@ -41,6 +41,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         base.OnModelCreating(modelBuilder);
 
+        // Detect database provider
+        var isPostgreSql = Database.ProviderName?.Contains("Npgsql") ?? false;
+        
         // Configure BaseEntity audit fields for all entities
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
@@ -58,6 +61,21 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 if (updatedByProperty != null)
                 {
                     updatedByProperty.SetMaxLength(450); // Match AspNetUsers.Id length
+                }
+
+                // PostgreSQL-specific: Configure RowVersion 
+                // PostgreSQL doesn't auto-generate bytea values like SQL Server's rowversion
+                // We'll use a trigger or let EF handle it with default empty array
+                if (isPostgreSql)
+                {
+                    var rowVersionProperty = entityType.FindProperty(nameof(BaseEntity.RowVersion));
+                    if (rowVersionProperty != null)
+                    {
+                        // Make it optional for PostgreSQL
+                        rowVersionProperty.IsNullable = true;
+                        // Set a default value
+                        rowVersionProperty.SetDefaultValue(new byte[] { 0, 0, 0, 0 });
+                    }
                 }
 
                 // Configure navigation properties
