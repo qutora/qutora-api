@@ -74,6 +74,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Strip v prefix from version
+        id: version
+        run: echo "CLEAN_VERSION=${NEW_VERSION#v}" >> $GITHUB_OUTPUT
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -90,7 +96,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=MIT
           build-args: |
-            VERSION=${{ steps.bump.outputs.new_version }}
+            VERSION=${{ steps.version.outputs.CLEAN_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
