@@ -370,14 +370,8 @@ FodyWeavers.xsd
 # Dockerfile*
 # docker-compose* - COMMENTED OUT: We need docker-compose files in repository
 # docker-compose*
-*.env
 
 # Environment variables
-.env
-.env.local
-.env.development
-.env.production
-!env.example
 
 # Development data directories
 dev-data/
@@ -405,8 +399,7 @@ Thumbs.db
 appsettings.Production.json
 appsettings.Staging.json
 *.secrets.json
-environment.env
-.env
+
 
 # Data Protection Keys (Security Critical)
 keys/
