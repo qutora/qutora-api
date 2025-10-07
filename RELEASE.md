@@ -1,6 +1,6 @@
 # 🚀 Release Guide
 
-This project uses an automated GitHub Actions workflow to build and publish Docker images using **semantic versioning**.
+This project uses an automated GitHub Actions workflow to build and publish Docker images using **semantic versioning**
 
 ## 🔧 How It Works
 
