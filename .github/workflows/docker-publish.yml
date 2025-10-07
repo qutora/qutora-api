@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-and-release:
-    if: contains(github.event.pull_request.title, '[release]') || contains(github.event.head_commit.message, '[release]')
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[release]')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,21 +28,18 @@ jobs:
 
       - name: Fetch latest tag from Docker Hub
         id: get_tag
+        continue-on-error: true
         run: |
           LATEST=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.IMAGE_NAME }}/tags/?page_size=100" \
             | jq -r '.results[].name' \
             | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
             | sort -V | tail -1)
-          if [[ -z "$LATEST" ]]; then
-            echo "LATEST=v0.0.0" >> $GITHUB_ENV
-          else
-            echo "LATEST=$LATEST" >> $GITHUB_ENV
-          fi
+          echo "LATEST=${LATEST:-v0.0.0}" >> $GITHUB_ENV
 
-      - name: Determine bump level based on commit/PR title
+      - name: Determine bump level based on commit message
         id: detect
         run: |
-          MSG="${{ github.event_name == 'pull_request' && github.event.pull_request.title || github.event.head_commit.message }}"
+          MSG="${{ github.event.head_commit.message }}"
           if [[ "$MSG" =~ \[major\] ]]; then echo "LEVEL=major"; \
           elif [[ "$MSG" =~ \[minor\] ]]; then echo "LEVEL=minor"; \
           else echo "LEVEL=patch"; fi >> $GITHUB_ENV
@@ -57,17 +54,15 @@ jobs:
       - name: Output the new version
         run: echo "Bumped from ${{ env.LATEST }} → ${{ steps.bump.outputs.new_version }}"
 
-      - name: Checkout with full history for tagging
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: true
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Tag the release
-        run: git tag ${{ steps.bump.outputs.new_version }}
-
-      - name: Push the tag
-        run: git push origin refs/tags/${{ steps.bump.outputs.new_version }}
+      - name: Tag and push the release
+        run: |
+          git tag ${{ steps.bump.outputs.new_version }}
+          git push origin refs/tags/${{ steps.bump.outputs.new_version }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -84,6 +79,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}
@@ -99,15 +95,18 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.bump.outputs.new_version }}
-          release_name: "Release ${{ steps.bump.outputs.new_version }}"
+          name: "Release ${{ steps.bump.outputs.new_version }}"
           body: |
             ## Qutora API ${{ steps.bump.outputs.new_version }}
-            🚀 Docker image: `docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}`
+            
+            Docker image: `docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}`
+            
+            ### Supported Platforms
+            - linux/amd64
+            - linux/arm64
 
   skip-notification:
     if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[release]')
