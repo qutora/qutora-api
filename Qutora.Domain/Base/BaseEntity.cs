@@ -55,5 +55,5 @@ public abstract class BaseEntity
     /// Row version for optimistic concurrency control
     /// </summary>
     [Timestamp]
-    public byte[]? RowVersion { get; set; } = Array.Empty<byte>();
+    public byte[] RowVersion { get; set; }
 }
