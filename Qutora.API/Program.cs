@@ -188,6 +188,12 @@ static bool IsConnectionException(Exception ex)
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qutora API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 else
 {
