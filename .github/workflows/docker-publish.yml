@@ -100,6 +100,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}
@@ -110,20 +111,23 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.licenses=MIT
           build-args: |
-            VERSION=${{ steps.bump.outputs.new_version }}
+            VERSION=${{ steps.version.outputs.CLEAN_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.bump.outputs.new_version }}
-          release_name: "Release ${{ steps.bump.outputs.new_version }}"
+          name: "Release ${{ steps.bump.outputs.new_version }}"
           body: |
             ## Qutora API ${{ steps.bump.outputs.new_version }}
-            🚀 Docker image: `docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}`
+            
+            Docker image: `docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.bump.outputs.new_version }}`
+            
+            ### Supported Platforms
+            - linux/amd64
+            - linux/arm64
 
   skip-notification:
     if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[release]')
