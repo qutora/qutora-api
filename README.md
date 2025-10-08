@@ -123,8 +123,6 @@ For detailed setup instructions, see [samples/README.md](samples/README.md).
 ## Documentation
 
 - **[Docker Compose Examples](samples/README.md)** - Quick start with Docker
-- **[Docker Documentation](DOCKER_README.md)** - Complete Docker setup guide
-- **[Security Guide](DOCKER_SECURITY_GUIDE.md)** - Security best practices
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
 
 ## Database Support
