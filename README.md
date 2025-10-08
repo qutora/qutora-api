@@ -178,15 +178,6 @@ export Jwt__Key="your-jwt-secret-key-32-chars-minimum"
 dotnet run --project Qutora.API
 ```
 
-### Docker Build
-```bash
-# Build image
-./docker-build.sh v1.0.0
-
-# Build and push to Docker Hub
-./docker-build.sh v1.0.0 true
-```
-
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
@@ -206,7 +197,6 @@ This is an open-source project. You are free to use, modify, and distribute this
 ## Support
 
 - **Issues**: [Report bugs or request features](https://github.com/qutora/qutora-api/issues)
-- **Discussions**: [Community support](https://github.com/qutora/qutora-api/discussions)
 - **API Documentation**: Swagger UI available at `/swagger` endpoint
 
 ## Project Status
